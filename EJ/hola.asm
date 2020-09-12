@@ -1,12 +1,12 @@
 ;===============SECCION DE MACROS ===========================
 print macro cadena ;print -> id del macro ;macro -> palabra reservada, representa al macro; cadena -> parámetro
 LOCAL ETIQUETA ;LOCAL -> palabra reservada, representa la espera de una lista de etiquetas
-ETIQUETA: ;etiqueta
-	MOV ah,09h ;función para la impresión de cadenas
-	MOV dx,@data ;lugar donde se ecuentra almacenados nuestros datos
-	MOV ds,dx 
-	MOV dx, offset cadena ;desplazamiento de la cadena de datos
-	int 21h ;interrupción 21h
+	ETIQUETA: ;etiqueta
+		MOV ah,09h ;función para la impresión de cadenas
+		MOV dx,@data ;lugar donde se ecuentra almacenados nuestros datos
+		MOV ds,dx 
+		MOV dx, offset cadena ;desplazamiento de la cadena de datos
+		int 21h ;interrupción 21h
 endm
 
 ;================= DECLARACION TIPO DE EJECUTABLE ============
@@ -17,7 +17,8 @@ endm
 ;db -> dato byte -> 8 bits
 ;dw -> dato word -> 16 bits
 ;dd -> doble word -> 32 bits
-holamundo db 0ah,0dh,'Hola mundo','$' ;caracter "$" para finalizar cadenas;
+holamundo db 10,13,'Hola mundo','$' ;caracter "$" para finalizar cadenas;
+;10, 13	   
 ;se pueden concatenar caracteres ascii haciendo uso de su código ascii en decimal o en hexadecimal
 ;se concatenan con la coma, ejemplo: 'HOLA','_CONCATENADO',10h,'$'
 holamundo2 db 0ah,0dh, 'Hola mundo 2','$'

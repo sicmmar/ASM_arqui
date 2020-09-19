@@ -1,31 +1,32 @@
+
+include juego.asm
+
 print macro cadena
     mov ah,09h
-    mov dx,@data
-    mov ds,dx
     mov dx,offset cadena
     int 21h
 endm
 
 ObtenerTexto macro buffer
-local CONTINUE, FIN
-    PUSH SI
-    PUSH AX
+    local CONTINUE, FIN
+        PUSH SI
+        PUSH AX
 
-    xor si,si
-    CONTINUE:
-        getChar
-        cmp al,0dh
-        je FIN
-        mov buffer[si],al
-        inc si
-        jmp CONTINUE
+        xor si,si
+        CONTINUE:
+            getChar
+            cmp al,0dh
+            je FIN
+            mov buffer[si],al
+            inc si
+            jmp CONTINUE
 
-    FIN:
-        mov al,'$'
-        mov buffer[si],al
+        FIN:
+            mov al,'$'
+            mov buffer[si],al
 
-    POP AX
-    POP SI
+        POP AX
+        POP SI
 endm
 
 getChar macro
@@ -115,16 +116,19 @@ imprimirTablero macro p8,p7,p6,p5,p4,p3,p2,p1,arr,g
     mov bl,'1'
     llenarArr arr,p1
     print arr
-    print g
+
+    cleanArr arr
 endm
 
 llenarArr macro arr,entrada
     local CONTINUE, FIN, FB, FN, RB, RN, SPACE
-    mov arr[0],bl
-    mov arr[1],9
-    mov arr[2],179
+    mov arr[0],9
+    mov arr[1],bl
+    mov arr[2],32
+    mov arr[3],32
+    mov arr[4],179
     
-    mov di,3
+    mov di,5
     mov si,0
     CONTINUE:
         cmp si,8
@@ -209,9 +213,9 @@ cleanArr macro arr
 
     xor si,si
     CONTINUE:
-        cmp si,29
+        cmp si,32
         je FIN
-        mov al,32
+        mov al,'$'
         mov arr[si],al
         inc si
         jmp CONTINUE

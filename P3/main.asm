@@ -23,6 +23,8 @@ pos5 db 9 dup(32), '$'
 pos6 db 9 dup(32), '$'
 pos7 db 9 dup(32), '$'
 pos8 db 9 dup(32), '$'
+comando db 3 dup('$'), '$'
+errorComando db ' ',173,173,' Error, ingresa un comando v',160,'lido !!','$'
 .code	
 	
 main proc
@@ -30,6 +32,7 @@ main proc
     mov ds,dx
 
 	MenuPrincipal:
+		llenarInicial pos8,pos7,pos6,pos3,pos2,pos1
 		print encab
 		getChar
 		cmp al,'1'
@@ -42,7 +45,6 @@ main proc
 
 	INICIOJUEGO:
 		print msjOpc1
-		llenarInicial pos8,pos7,pos6,pos3,pos2,pos1
 		print saltoln
 		print abc
 		print guionesInicio
@@ -51,8 +53,14 @@ main proc
 		print abc
 		print msjTBlancas
 		ObtenerTexto arregloAux
-		juego arregloAux
-		jmp MenuPrincipal
+		juego arregloAux, comando, errorComando
+		;comandos especiales
+		xor bx,bx
+		mov bl,comando[0]
+		cmp bl,1111b ;exit
+		je MenuPrincipal
+	
+		jmp INICIOJUEGO
 
 	CARGAJUEGO:
 		print msjOpc2

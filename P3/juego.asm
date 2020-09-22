@@ -72,10 +72,10 @@ colocarAccion macro paso,accion,errCmd
         CMDS:
             inc di
             mov al,paso[di]
-            cmp al,'h'
-            je SHOW
-            cmp al,'a'
-            je SAVE
+            ;cmp al,'h'
+            ;je SHOW
+            ;cmp al,'a'
+            ;je SAVE
             cmp al,'w'
             jne ERROR
             je FINEXIT

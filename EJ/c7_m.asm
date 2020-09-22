@@ -55,12 +55,12 @@ jc ErrorAbrir
 endm
 
 leerF macro numbytes,buffer,handle
-mov ah,3fh
-mov bx,handle
-mov cx,numbytes
-lea dx,buffer
-int 21h
-jc ErrorLeer
+	mov ah,3fh
+	mov bx,handle
+	mov cx,numbytes
+	lea dx,buffer
+	int 21h
+	jc ErrorLeer
 endm
 
 crearF macro ruta, handle

@@ -3,7 +3,7 @@ include juego.asm
 
 print macro cadena
     mov ah,09h
-    mov dx,offset cadena
+    lea dx,cadena
     int 21h
 endm
 
@@ -126,7 +126,7 @@ llenarArr macro arr,entrada
     mov arr[1],bl
     mov arr[2],32
     mov arr[3],32
-    mov arr[4],179
+    mov arr[4],179 ;|
     
     mov di,5
     mov si,0

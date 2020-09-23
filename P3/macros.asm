@@ -42,7 +42,7 @@ printChar macro char
     int 21h
 endm
 
-llenarInicial macro b1,b2,b3,n1,n2,n3
+llenarInicial macro n1,n2,n3,b1,b2,b3
     mov b1[0],11b
     mov b1[2],11b
     mov b1[4],11b
@@ -55,69 +55,69 @@ llenarInicial macro b1,b2,b3,n1,n2,n3
     mov b3[2],11b
     mov b3[4],11b
     mov b3[6],11b
-    mov n1[0],10b
-    mov n1[2],10b
-    mov n1[4],10b
-    mov n1[6],10b
-    mov n2[1],10b
-    mov n2[3],10b
-    mov n2[5],10b
-    mov n2[7],10b
-    mov n3[0],10b
-    mov n3[2],10b
-    mov n3[4],10b
-    mov n3[6],10b
+    mov n2[0],10b
+    mov n2[2],10b
+    mov n2[4],10b
+    mov n2[6],10b
+    mov n1[1],10b
+    mov n1[3],10b
+    mov n1[5],10b
+    mov n1[7],10b
+    mov n3[1],10b
+    mov n3[3],10b
+    mov n3[5],10b
+    mov n3[7],10b
 endm
 
 imprimirTablero macro p8,p7,p6,p5,p4,p3,p2,p1,arr,g
-    cleanArr arr
+    cleanArr arr, sizeof arr
     mov bl,'8'
     llenarArr arr,p8
     print arr
     print g
 
-    cleanArr arr
+    cleanArr arr, sizeof arr
     mov bl,'7'
     llenarArr arr,p7
     print arr
     print g
 
-    cleanArr arr
+    cleanArr arr, sizeof arr
     mov bl,'6'
     llenarArr arr,p6
     print arr
     print g
 
-    cleanArr arr
+    cleanArr arr, sizeof arr
     mov bl,'5'
     llenarArr arr,p5
     print arr
     print g
 
-    cleanArr arr
+    cleanArr arr, sizeof arr
     mov bl,'4'
     llenarArr arr,p4
     print arr
     print g
 
-    cleanArr arr
+    cleanArr arr, sizeof arr
     mov bl,'3'
     llenarArr arr,p3
     print arr
     print g
 
-    cleanArr arr
+    cleanArr arr, sizeof arr
     mov bl,'2'
     llenarArr arr,p2
     print arr
     print g
 
-    cleanArr arr
+    cleanArr arr, sizeof arr
     mov bl,'1'
     llenarArr arr,p1
     print arr
 
-    cleanArr arr
+    cleanArr arr, sizeof arr
 endm
 
 llenarArr macro arr,entrada
@@ -206,14 +206,15 @@ llenarArr macro arr,entrada
         mov arr[di],al
 endm
 
-cleanArr macro arr
+cleanArr macro arr,tamano
     local CONTINUE, FIN
     PUSH SI
     PUSH AX
 
     xor si,si
+    mov bx,tamano
     CONTINUE:
-        cmp si,32
+        cmp si,bx
         je FIN
         mov al,'$'
         mov arr[si],al

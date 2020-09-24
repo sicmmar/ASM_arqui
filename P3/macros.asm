@@ -231,68 +231,6 @@ cleanArr macro arr,tamano
     POP SI
 endm
 
-; FECHA Y HORA
-escribirFecha macro handle, fecha, hora
-    ;;;;;;;;;; FECHA
-    MOV AH,2AH    ; To get System Date
-    INT 21H
-    MOV AL,DL     ; Day is in DL
-    AAM
-    MOV BX,AX
-    CALL DISP
-    mov fecha[23],dl
-    mov fecha[24],al
-
-    MOV AH,2AH    ; To get System Date
-    INT 21H
-    MOV AL,DH     ; Month is in DH
-    AAM
-    MOV BX,AX
-    CALL DISP
-    mov fecha[26],dl
-    mov fecha[27],al
-
-    MOV AH,2AH    ; To get System Date
-    INT 21H
-    ADD CX,0F830H ; To negate the effects of 16bit value,
-    MOV AX,CX     ; since AAM is applicable only for AL (YYYY -> YY)
-    AAM
-    MOV BX,AX
-    CALL DISP
-    mov fecha[31],dl
-    mov fecha[32],al
-
-    escribirF handle, sizeof fecha, fecha
-
-    ;;;;;;; HORA
-    MOV AH,2CH    ; To get System Time
-    INT 21H
-    MOV AL,CH     ; Hour is in CH
-    AAM
-    MOV BX,AX
-    CALL DISP
-    mov hora[26],dl
-    mov hora[27],al
-
-    MOV AH,2CH    ; To get System Time
-    INT 21H
-    MOV AL,CL     ; Minutes is in CL
-    AAM
-    MOV BX,AX
-    CALL DISP
-    mov hora[29],dl
-    mov hora[30],al
-
-    MOV AH,2CH    ; To get System Time
-    INT 21H
-    MOV AL,DH     ; Seconds is in DH
-    AAM
-    MOV BX,AX
-    CALL DISP
-    mov hora[32],dl
-    mov hora[33],al
-endm
-
 
 ;=========================== FICHEROS ===================
 abrirF macro ruta,handle
@@ -314,12 +252,12 @@ leerF macro numbytes,buffer,handle
 endm
 
 crearF macro ruta, handle
-mov ah,3ch
-mov cx,00h
-lea dx, ruta
-int 21h
-mov handle,ax
-jc ErrorCrear
+    mov ah,3ch
+    mov cx,00h
+    lea dx, ruta
+    int 21h
+    mov handle,ax
+    jc ErrorCrear
 endm
 
 escribirF macro handle, numBytes, buffer

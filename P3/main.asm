@@ -8,6 +8,7 @@ bufferLectura db 100 dup('$')
 bufferEscritura db 100 dup('$')
 handleFichero dw ?
 handle2 dw ?
+fileHtml db 'estadoTablero.html',00h,00h
 encab db 10,10,13,'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA',10,13,'FACULTAD DE INGENIERIA',10,13,'CIENCIAS Y SISTEMAS',10,13,'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1','$'
 enc db 10,10,13,'NOMBRE: ASUNCION MARIANA SIC SOR',10,13,'CARNET: 201504051',10,13,'SECCION: A','$'
 encab2 db 10,13,10,13,'1. Iniciar Juego',10,13,'2. Cargar Juego',10,13,'3. Salir',10,13,10,'::Escoja una opci',162,'n  ','$'
@@ -30,6 +31,7 @@ pos6 db 9 dup(32), '$'
 pos7 db 9 dup(32), '$'
 pos8 db 9 dup(32), '$'
 comando db 9 dup(32), '$'
+;; mensajees :D
 errorComando db ' ',173,173,' Error, ingresa un comando v',160,'lido !!','$'
 errorMovimiendo db ' ',173,173,' Error, ingresa un movimiento v',160,'lido !!','$'
 msmError1 db 0ah,0dh,'Error al abrir archivo','$'
@@ -38,21 +40,20 @@ msmError3 db 0ah,0dh,'Error al crear archivo','$'
 msmError4 db 0ah,0dh,'Error al escribir archivo','$'
 msmError5 db 0ah,0dh,'Error al cerrar archivo','$'
 ingreseRuta db 10,13, '::Ingresa nombre archivo ','$'
+showSuccess db 10,13, ' ',173,173,' Estado actual de juego generado !!','$'
 
 ;etiq HTML
 htmlEncab1 db '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>body {background-image: url("tabla.png");background-repeat: no-repeat;background-attachment: fixed;background-size: 100% 100%;}td',10,13
 htmlEncab2 db '{height: 61px;width: 61px;}th, tfoot{background-color: white;}</style><title>201504051</title></head><body><div style="height: 225px;"></div><div style="margin-left: 375px;"><table><tr>',10,13
 fechaHTML db '<th colspan="8">Fecha: ',32,32,'/',32,32,'/20',32,32,'</th></tr>',10,13
-filaParHTML1 db '<tr><td style="background-color: beige;"></td><td style="background-color: brown;">',32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,'</td>'
-filaParHTML2 db '<td style="background-color: beige;"></td><td style="background-color: brown;">',32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,'</td>'
-filaParHTML3 db '<td style="background-color: beige;"></td><td style="background-color: brown;">',32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,'</td>'
-filaParHTML4 db '<td style="background-color: beige;"></td><td style="background-color: brown;">',32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,'</td></tr>'
-filaImparHTML1 db '<tr><td style="background-color: brown;">',32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,'</td><td style="background-color: beige;"></td>'
-filaImparHTML2 db '<td style="background-color: brown;">',32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,'</td><td style="background-color: beige;"></td>'
-filaImparHTML3 db '<td style="background-color: brown;">',32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,'</td><td style="background-color: beige;"></td>'
-filaImparHTML4 db '<td style="background-color: brown;">',32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,'</td><td style="background-color: beige;"></td></tr>'
-negraHTML db '<img src="negra.png"/></td> ' ;tam 27
-blancaHTML db '<img src="blanca.png"/></td> ' ;tam 28
+inicioTR db 10,13,'<tr>'
+finT db '</tr>',10,13
+filaParHTMLx4 db '<td style="background-color: beige;"></td><td style="background-color: brown;">',32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,'</td>'
+filaImparHTMLx4 db '<td style="background-color: brown;">',32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,32,'</td><td style="background-color: beige;"></td>'
+negraHTML db '<img src="negra.png"/></td>    ' ;tam 27
+blancaHTML db '<img src="blanca.png"/></td>    ' ;tam 28
+negraReinaHTML db '<img src="negraR.png"/></td>    ' ;tam 28
+blancaReinaHTML db '<img src="blancaR.png"/></td>    ' ;tam 29
 horaHTML db '<tr><th colspan="8">Hora: ',32,32,':',32,32,':',32,32,'</th></tr></table></div></body></html>'
 
 .code	
@@ -112,17 +113,49 @@ main proc
 		int 21h
 	
 	CREARHTML:
-		print ingreseRuta
-		getRuta arregloAux
-		crearF arregloAux, handle2
+		mov handle2,00h
+		crearF fileHtml, handle2
 		escribirF handle2, sizeof htmlEncab1, htmlEncab1
 		escribirF handle2, sizeof htmlEncab2, htmlEncab2
 		escribirFecha handle2, fechaHTML, horaHTML
+		; fila 8
+		escribirF handle2, sizeof inicioTR, inicioTR
+		filaParHTML pos8
+		escribirF handle2, sizeof finT, finT
+		;fila 7
+		escribirF handle2, sizeof inicioTR, inicioTR
+		filaImparHTML pos7
+		escribirF handle2, sizeof finT, finT
+		;fila 6
+		escribirF handle2, sizeof inicioTR, inicioTR
+		filaParHTML pos6
+		escribirF handle2, sizeof finT, finT
+		;fila 5
+		escribirF handle2, sizeof inicioTR, inicioTR
+		filaImparHTML pos5
+		escribirF handle2, sizeof finT, finT
+		;fila 4
+		escribirF handle2, sizeof inicioTR, inicioTR
+		filaParHTML pos4
+		escribirF handle2, sizeof finT, finT
+		;fila 3
+		escribirF handle2, sizeof inicioTR, inicioTR
+		filaImparHTML pos3
+		escribirF handle2, sizeof finT, finT
+		;fila 2
+		escribirF handle2, sizeof inicioTR, inicioTR
+		filaParHTML pos2
+		escribirF handle2, sizeof finT, finT
+		;fila 1
+		escribirF handle2, sizeof inicioTR, inicioTR
+		filaImparHTML pos1
+		escribirF handle2, sizeof finT, finT
 
 		escribirF handle2, sizeof horaHTML, horaHTML
 		cerrarF handle2
-		;cleanArr arregloAux, sizeof arregloAux
-		;cleanArr handle2, sizeof handle2
+		cleanArr arregloAux, sizeof arregloAux
+		mov handle2,00h
+		jnc SHOWCREADO
 		;getChar
 		jmp INICIOJUEGO
 
@@ -151,6 +184,11 @@ main proc
 		getChar
 		jmp MenuPrincipal
 
+	SHOWCREADO:
+		print showSuccess
+		getChar
+		jmp INICIOJUEGO
+
 main endp
 
 
@@ -162,27 +200,5 @@ DISP PROC
     ADD al,30H     ; ASCII Adjustment
     RET
 DISP ENDP      ; End Disp Procedure
-
-rutaHTML proc
-	mov arregloAux[0],'e'
-	mov arregloAux[1],'s'
-	mov arregloAux[2],'t'
-	mov arregloAux[3],'a'
-	mov arregloAux[4],'d'
-	mov arregloAux[5],'o'
-	mov arregloAux[6],'T'
-	mov arregloAux[7],'a'
-	mov arregloAux[8],'b'
-	mov arregloAux[9],'l'
-	mov arregloAux[10],'e'
-	mov arregloAux[11],'r'
-	mov arregloAux[12],'o'
-	mov arregloAux[13],'.'
-	mov arregloAux[14],'h'
-	mov arregloAux[15],'t'
-	mov arregloAux[16],'m'
-	mov arregloAux[17],'l'
-	mov arregloAux[18],'$'
-rutaHTML proc
 
 end

@@ -1,3 +1,5 @@
+include html.asm
+
 sigTurno macro com,msB,msN,arr
     local SIGTURNO, TURNOBLANCA, TURNONEGRA, SWBN, SWNB
 
@@ -173,7 +175,6 @@ colocarAccion macro paso,accion,errCmd
             inc di
             cmp paso[di],'o'
             je SHOW
-            jne ERROR
             cmp paso[di],'w'
             je FINSHOW
             jne ERROR

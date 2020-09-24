@@ -163,4 +163,26 @@ DISP PROC
     RET
 DISP ENDP      ; End Disp Procedure
 
+rutaHTML proc
+	mov arregloAux[0],'e'
+	mov arregloAux[1],'s'
+	mov arregloAux[2],'t'
+	mov arregloAux[3],'a'
+	mov arregloAux[4],'d'
+	mov arregloAux[5],'o'
+	mov arregloAux[6],'T'
+	mov arregloAux[7],'a'
+	mov arregloAux[8],'b'
+	mov arregloAux[9],'l'
+	mov arregloAux[10],'e'
+	mov arregloAux[11],'r'
+	mov arregloAux[12],'o'
+	mov arregloAux[13],'.'
+	mov arregloAux[14],'h'
+	mov arregloAux[15],'t'
+	mov arregloAux[16],'m'
+	mov arregloAux[17],'l'
+	mov arregloAux[18],'$'
+rutaHTML proc
+
 end

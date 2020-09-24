@@ -47,7 +47,7 @@ accionesDef macro acc
 endm
 
 colocarAccion macro paso,accion,errCmd
-    local ERROR, CONTINUE, FIN, EXIT, FINEXIT, CMDS, SETARR, SETPOS, HAYCOMA, NOHAYCOMA, SET, SICOMA, HAYCOMA2, NOHAYCOMA2
+    local ERROR, CONTINUE, FIN, EXIT, FINEXIT, CMDS, SETARR, SETPOS, HAYCOMA, NOHAYCOMA, SET, SICOMA, HAYCOMA2, NOHAYCOMA2, SHOW, FINSHOW
 
         xor ax,ax
         xor si,si
@@ -164,12 +164,29 @@ colocarAccion macro paso,accion,errCmd
             ;je SHOW
             ;cmp al,'a'
             ;je SAVE
-            cmp al,'w'
+            cmp al,'h'
+            je SHOW
             jne ERROR
             je FINEXIT
 
+        SHOW:
+            inc di
+            cmp paso[di],'o'
+            je SHOW
+            jne ERROR
+            cmp paso[di],'w'
+            je FINSHOW
+            jne ERROR
+            jmp FIN
+
+
         FINEXIT:
             mov al,1111b
+            mov accion[7],al
+            jmp FIN
+
+        FINSHOW:
+            mov al,1101b
             mov accion[7],al
             jmp FIN
         

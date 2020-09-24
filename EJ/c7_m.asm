@@ -80,3 +80,10 @@ lea dx,buffer
 int 21h
 jc ErrorEscribir
 endm
+
+cerrarF macro handle
+	mov ah,3eh
+	mov bx,handle
+	int 21h
+	jc ErrorCerrar
+endm

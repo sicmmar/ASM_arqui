@@ -37,9 +37,11 @@ getChar macro
 endm
 
 printChar macro char
+    push dx
     mov ah,02h
     mov dl,char
     int 21h
+    pop dx
 endm
 
 llenarInicial macro n1,n2,n3,b1,b2,b3
@@ -227,4 +229,125 @@ cleanArr macro arr,tamano
 
     POP AX
     POP SI
+endm
+
+; FECHA Y HORA
+escribirFecha macro handle, fecha, hora
+    ;;;;;;;;;; FECHA
+    MOV AH,2AH    ; To get System Date
+    INT 21H
+    MOV AL,DL     ; Day is in DL
+    AAM
+    MOV BX,AX
+    CALL DISP
+    mov fecha[23],dl
+    mov fecha[24],al
+
+    MOV AH,2AH    ; To get System Date
+    INT 21H
+    MOV AL,DH     ; Month is in DH
+    AAM
+    MOV BX,AX
+    CALL DISP
+    mov fecha[26],dl
+    mov fecha[27],al
+
+    MOV AH,2AH    ; To get System Date
+    INT 21H
+    ADD CX,0F830H ; To negate the effects of 16bit value,
+    MOV AX,CX     ; since AAM is applicable only for AL (YYYY -> YY)
+    AAM
+    MOV BX,AX
+    CALL DISP
+    mov fecha[31],dl
+    mov fecha[32],al
+
+    escribirF handle, sizeof fecha, fecha
+
+    ;;;;;;; HORA
+    MOV AH,2CH    ; To get System Time
+    INT 21H
+    MOV AL,CH     ; Hour is in CH
+    AAM
+    MOV BX,AX
+    CALL DISP
+    mov hora[26],dl
+    mov hora[27],al
+
+    MOV AH,2CH    ; To get System Time
+    INT 21H
+    MOV AL,CL     ; Minutes is in CL
+    AAM
+    MOV BX,AX
+    CALL DISP
+    mov hora[29],dl
+    mov hora[30],al
+
+    MOV AH,2CH    ; To get System Time
+    INT 21H
+    MOV AL,DH     ; Seconds is in DH
+    AAM
+    MOV BX,AX
+    CALL DISP
+    mov hora[32],dl
+    mov hora[33],al
+endm
+
+
+;=========================== FICHEROS ===================
+abrirF macro ruta,handle
+mov ah,3dh
+mov al,010b
+lea dx,ruta
+int 21h
+mov handle,ax
+jc ErrorAbrir
+endm
+
+leerF macro numbytes,buffer,handle
+	mov ah,3fh
+	mov bx,handle
+	mov cx,numbytes
+	lea dx,buffer
+	int 21h
+	jc ErrorLeer
+endm
+
+crearF macro ruta, handle
+mov ah,3ch
+mov cx,00h
+lea dx, ruta
+int 21h
+mov handle,ax
+jc ErrorCrear
+endm
+
+escribirF macro handle, numBytes, buffer
+mov ah,40h
+mov bx,handle
+mov cx,numBytes
+lea dx,buffer
+int 21h
+jc ErrorEscribir
+endm
+
+getRuta macro buffer
+LOCAL INICIO,FIN
+xor si,si
+	INICIO:
+		getChar
+		cmp al,0dh
+		je FIN
+		mov buffer[si],al
+		inc si
+		jmp INICIO
+	FIN:
+		mov buffer[si],00h
+endm
+
+cerrarF macro handle
+	mov ah,3eh
+	mov bx,handle
+	int 21h
+	jc ErrorCerrar
 endm

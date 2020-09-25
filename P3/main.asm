@@ -34,6 +34,7 @@ comando db 9 dup(32), '$'
 ;; mensajees :D
 errorComando db ' ',173,173,' Error, ingresa un comando v',160,'lido !!','$'
 errorMovimiendo db ' ',173,173,' Error, ingresa un movimiento v',160,'lido !!','$'
+errorTurno db ' ',173,173,' Error, a',163,'n no te toca mover ficha' !!','$'
 msmError1 db 0ah,0dh,'Error al abrir archivo','$'
 msmError2 db 0ah,0dh,'Error al leer archivo','$'
 msmError3 db 0ah,0dh,'Error al crear archivo','$'
@@ -98,7 +99,7 @@ main proc
 		sigTurno comando,msjTBlancas,msjTNegras,arregloAux
 		;print msjTBlancas
 		;ObtenerTexto arregloAux
-		juego arregloAux, comando, errorComando, errorMovimiendo
+		colocarAccion arregloAux,comando,errorComando
 		;comandos especiales
 		xor bx,bx
 		mov bl,comando[7]
@@ -108,7 +109,8 @@ main proc
 		je CREARHTML
 		cmp bl,1110b ;save
 		je SAVE 
-	
+		
+		movimiento comando, errorMovimiendo
 		jmp INICIOJUEGO
 
 	SAVE:

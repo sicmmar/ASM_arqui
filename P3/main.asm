@@ -19,7 +19,7 @@ guionesFin db 9,32,32,32,192,196,196,193,196,196,193,196,196,193,196,196,193,196
 guiones db 9,32,32,32,195,196,196,197,196,196,197,196,196,197,196,196,197,196,196,197,196,196,197,196,196,197,196,196,180,10,13,'$'
 abc db 9,32,32,32,' A  B  C  D  E  F  G  H  ',10,13,'$'
 msjOpc1 db 10,10,13,9,201,205,205,205,205,205,205,' JUEGO INICIADO ',205,205,205,205,205,205,187,10,13,'$'
-msjOpc2 db 10,10,13,9,201,205,205,205,205,205,205,'  CARGAR JUEGO  ',205,205,205,205,205,205,187,10,13,'$'
+msjOpc2 db 10,10,13,9,'-----------------------  CARGAR JUEGO  -----------------------',10,13,'$'
 msjOpc3 db 10,10,13,9,205,205,205,205,205,205,205,205,205,205,205,'  ADIOS  ',205,205,205,205,205,205,205,205,205,205,205,10,13,'$'
 saltoln db 10,13,'$'
 pos1 db 9 dup(32), '$'
@@ -40,6 +40,7 @@ msmError3 db 0ah,0dh,'Error al crear archivo','$'
 msmError4 db 0ah,0dh,'Error al escribir archivo','$'
 msmError5 db 0ah,0dh,'Error al cerrar archivo','$'
 ingreseRuta db 10,13, '::Ingresa nombre archivo ','$'
+aCargar db 'a cargar ','$'
 showSuccess db 10,13, ' ',173,173,' Estado actual de juego generado !!','$'
 
 ;etiq HTML
@@ -59,6 +60,7 @@ horaHTML db '<tr><th colspan="8">Hora: ',32,32,':',32,32,':',32,32,'</th></tr></
 ;archivo arq
 filaArch db ' , , , , , , , ',10,13
 saveSuccess db 10,13, ' ',173,173,' Juego guardado con ',130,'xito !!','$'
+loadSuccess db 10,13, ' ',173,173,' Juego cargado con ',130,'xito !!','$'
 
 .code	
 	
@@ -128,8 +130,25 @@ main proc
 		jmp INICIOJUEGO
 	
 	CARGAJUEGO:
+		mov handle2,00h
 		print msjOpc2
-		jmp MenuPrincipal
+		print ingreseRuta
+		print aCargar
+		getRuta arregloAux
+		abrirF arregloAux, handle2
+		cargaFichero pos8
+		cargaFichero pos7
+		cargaFichero pos6
+		cargaFichero pos5
+		cargaFichero pos4
+		cargaFichero pos3
+		cargaFichero pos2
+		cargaFichero pos1
+		cerrarF handle2
+		mov handle2,00h
+		print loadSuccess
+		getChar
+		jmp INICIOJUEGO
 
 	SALIR:
 		print msjOpc3

@@ -245,3 +245,29 @@ guardarArq macro posicion
         loop LAST
 
 endm
+
+cargaFichero macro posicion
+    local LAST, FIRST
+
+    xor di,di
+    mov cx,8
+    LAST:
+        mov filaArch[di],32
+        inc di
+        inc di
+        loop LAST
+
+    leerF sizeof filaArch, filaArch, handle2
+
+    xor si,si
+    xor di,di
+    mov cx,8
+    FIRST:
+        mov al,filaArch[di]
+        mov posicion[si],al
+        inc si
+        inc di
+        inc di
+        loop FIRST
+
+endm

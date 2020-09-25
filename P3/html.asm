@@ -219,3 +219,29 @@ filaImparHTML macro posicion
         xor si,si
         xor di,di
 endm
+
+;;;;;;;;;; ARCHIVO EXTENSION .ARQ
+guardarArq macro posicion
+    local FIRST, LAST
+    xor si,si
+    xor di,di
+    mov cx,8
+    FIRST:
+        mov al,posicion[si]
+        mov filaArch[di],al
+        inc si
+        inc di
+        inc di
+        loop FIRST
+    
+    escribirF handle2, sizeof filaArch, filaArch
+
+    xor di,di
+    mov cx,8
+    LAST:
+        mov filaArch[di],32
+        inc di
+        inc di
+        loop LAST
+
+endm

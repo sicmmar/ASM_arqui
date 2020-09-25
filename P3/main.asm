@@ -56,6 +56,10 @@ negraReinaHTML db '<img src="negraR.png"/></td>    ' ;tam 28
 blancaReinaHTML db '<img src="blancaR.png"/></td>    ' ;tam 29
 horaHTML db '<tr><th colspan="8">Hora: ',32,32,':',32,32,':',32,32,'</th></tr></table></div></body></html>'
 
+;archivo arq
+filaArch db ' , , , , , , , ',10,13
+saveSuccess db 10,13, ' ',173,173,' Juego guardado con ',130,'xito !!','$'
+
 .code	
 	
 main proc
@@ -100,7 +104,27 @@ main proc
 		je MenuPrincipal
 		cmp bl,1101b ;show
 		je CREARHTML
+		cmp bl,1110b ;save
+		je SAVE 
 	
+		jmp INICIOJUEGO
+
+	SAVE:
+		mov handle2,00h
+		print ingreseRuta
+		getRuta arregloAux
+		crearF arregloAux, handle2
+		guardarArq pos8
+		guardarArq pos7
+		guardarArq pos6
+		guardarArq pos5
+		guardarArq pos4
+		guardarArq pos3
+		guardarArq pos2
+		guardarArq pos1
+		cerrarF handle2
+		mov handle2,00h
+		jnc SAVECREADO
 		jmp INICIOJUEGO
 	
 	CARGAJUEGO:
@@ -159,6 +183,8 @@ main proc
 		;getChar
 		jmp INICIOJUEGO
 
+	
+	
 	ErrorAbrir:
 		print msmError1
 		getChar
@@ -186,6 +212,11 @@ main proc
 
 	SHOWCREADO:
 		print showSuccess
+		getChar
+		jmp INICIOJUEGO
+
+	SAVECREADO:
+		print saveSuccess
 		getChar
 		jmp INICIOJUEGO
 

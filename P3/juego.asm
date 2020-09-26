@@ -404,6 +404,7 @@ leerDestino macro
         je ENPOS8
 
     ENPOS1:
+        mov dx,1
         mov al,pos1[si]
         jmp TURNOCORRECTO
 
@@ -432,6 +433,7 @@ leerDestino macro
         jmp TURNOCORRECTO
 
     ENPOS8:
+        mov dx,8
         mov al,pos8[si]
         jmp TURNOCORRECTO
 
@@ -446,16 +448,21 @@ leerDestino macro
         jmp FIN
 
     FIN:
-        ;getChar
+        
+
         
 endm
 
 actualizarMovimiento macro
-    local ENPOS1, ENPOS2, ENPOS3, ENPOS4, ENPOS5, ENPOS6, ENPOS7, ENPOS8, TURNOCORRECTO, INICIO, BORRARANTERIOR, FIN
+    local ENPOS1, ENPOS2, ENPOS3, ENPOS4, ENPOS5, ENPOS6, ENPOS7, ENPOS8, TURNOCORRECTO, INICIO, BORRARANTERIOR, FIN, REINABLANCA, REINANEGRA
     pop ax
     xor di,di
 
     INICIO:
+        cmp dx,8
+        je REINABLANCA
+        cmp dx,1
+        je REINANEGRA
         cmp bl,1
         je ENPOS1
         cmp bl,2
@@ -472,6 +479,14 @@ actualizarMovimiento macro
         je ENPOS7
         cmp bl,8
         je ENPOS8
+
+    REINABLANCA:
+        mov pos8[si],01b
+        jmp TURNOCORRECTO
+    
+    REINANEGRA:
+        mov pos1[si],00b
+        jmp TURNOCORRECTO
 
     ENPOS1:
         mov pos1[si],al

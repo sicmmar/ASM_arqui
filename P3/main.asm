@@ -13,7 +13,7 @@ encab db 10,10,13,'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA',10,13,'FACULTAD DE IN
 enc db 10,10,13,'NOMBRE: ASUNCION MARIANA SIC SOR',10,13,'CARNET: 201504051',10,13,'SECCION: A','$'
 encab2 db 10,13,10,13,'1. Iniciar Juego',10,13,'2. Cargar Juego',10,13,'3. Salir',10,13,10,'::Escoja una opci',162,'n  ','$'
 msjTBlancas db 10,13,'::Turno Blancas ','$'
-msjTNegras db 10,23,'::Turno Negras ','$'
+msjTNegras db 10,13,'::Turno Negras ','$'
 guionesInicio db 9,32,32,32,218,196,196,194,196,196,194,196,196,194,196,196,194,196,196,194,196,196,194,196,196,194,196,196,191,10,13,'$'
 guionesFin db 9,32,32,32,192,196,196,193,196,196,193,196,196,193,196,196,193,196,196,193,196,196,193,196,196,193,196,196,217,10,13,'$'
 guiones db 9,32,32,32,195,196,196,197,196,196,197,196,196,197,196,196,197,196,196,197,196,196,197,196,196,197,196,196,180,10,13,'$'
@@ -71,20 +71,24 @@ main proc
     mov ds,dx
 
 	MenuPrincipal:
-		llenarInicial pos8,pos7,pos6,pos3,pos2,pos1
-		mov comando[2],1b
-		mov comando[3],0b
 		print encab
 		print enc
 		print encab2
 		getChar
 		cmp al,'1'
-		je INICIOJUEGO
+		je INICIAL
 		cmp al,'2'
 		je CARGAJUEGO
 		cmp al,'3'
 		je SALIR
 		jmp MenuPrincipal
+
+	INICIAL:
+		llenarInicial pos8,pos7,pos6,pos3,pos2,pos1
+		mov comando[2],1b
+		mov comando[3],0b
+		jmp INICIOJUEGO
+
 
 	INICIOJUEGO:
         mov comando[7],00b

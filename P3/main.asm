@@ -34,7 +34,8 @@ comando db 9 dup(32), '$'
 ;; mensajees :D
 errorComando db ' ',173,173,' Error, ingresa un comando v',160,'lido !!','$'
 errorMovimiendo db ' ',173,173,' Error, ingresa un movimiento v',160,'lido !!','$'
-errorTurno db ' ',173,173,' Error, a',163,'n no te toca mover ficha' !!','$'
+errorTurno db ' ',173,173,' Error, a',163,'n no te toca mover ficha !!','$'
+errorBlanco db ' ',173,173,' Error, no se puede mover a la casilla indicada !!','$'
 msmError1 db 0ah,0dh,'Error al abrir archivo','$'
 msmError2 db 0ah,0dh,'Error al leer archivo','$'
 msmError3 db 0ah,0dh,'Error al crear archivo','$'
@@ -86,6 +87,7 @@ main proc
 		jmp MenuPrincipal
 
 	INICIOJUEGO:
+        mov comando[7],00b
 		mov comando[4],0b
     	accionesDef comando
 		print msjOpc1
@@ -96,7 +98,7 @@ main proc
 		print guionesFin
 		print abc
 		cleanArr arregloAux, sizeof arregloAux
-		sigTurno comando,msjTBlancas,msjTNegras,arregloAux
+		sigTurno
 		;print msjTBlancas
 		;ObtenerTexto arregloAux
 		colocarAccion arregloAux,comando,errorComando

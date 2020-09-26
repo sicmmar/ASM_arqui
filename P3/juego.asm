@@ -1,37 +1,39 @@
 include html.asm
 
-sigTurno macro com,msB,msN,arr
-    local SIGTURNO, TURNOBLANCA, TURNONEGRA, SWBN, SWNB
+sigTurno macro
+    local SIGTURNO, TURNOBLANCA, TURNONEGRA, SWBN, SWNB, FIN
 
         SIGTURNO:
-            cmp com[2],1b
+            cmp comando[2],1b
             je TURNOBLANCA
-            cmp com[2],0b
+            cmp comando[2],0b
             je TURNONEGRA
 
         
         TURNOBLANCA:
-            print msB
-            cmp com[3],1b
+            cmp comando[3],1b
             je SWBN
+            print msjTBlancas
             jmp FIN
 
         SWBN:
-            mov com[2],0b
-            mov com[3],0b
+            mov comando[2],0b
+            mov comando[3],0b
+            jmp SIGTURNO
         
         TURNONEGRA:
-            print msN
-            cmp com[3],1b
+            cmp comando[3],1b
             je SWNB
+            print msjTNegras
             jmp FIN
 
         SWNB:
-            mov com[2],1b
-            mov com[3],0b
+            mov comando[2],1b
+            mov comando[3],0b
+            jmp SIGTURNO
 
         FIN:
-            ObtenerTexto arr
+            ObtenerTexto arregloAux
 
 endm
 
@@ -208,8 +210,10 @@ colocarAccion macro paso,accion,errCmd
 endm
 
 movimiento macro accion, errMV
-    local FIN, ERROR, HAYCOMA, ERRORTURNO, MOVERFICHA;, NOHAYCOMA
+    local FIN, ERROR, HAYCOMA, ERRORTURNO, MOVERFICHA, REFRESH;, NOHAYCOMA
     
+
+    mov comando[7],00b
     cmp accion[0],0
     jl ERROR
     cmp accion[0],8
@@ -225,6 +229,8 @@ movimiento macro accion, errMV
     ;je NOHAYCOMA
 
     HAYCOMA:
+        mov cx,1
+        mov dx,6
         cmp accion[1],0
         jl ERROR
         cmp accion[1],8
@@ -246,10 +252,16 @@ movimiento macro accion, errMV
 
     MOVERFICHA:
         leerDestino
+        cmp comando[7],1100b
+        jne REFRESH
         jmp FIN
 
     ERROR:
         print errMV
+        jmp FIN
+
+    REFRESH:
+        actualizarMovimiento
         jmp FIN
 
     ERRORTURNO:
@@ -261,11 +273,13 @@ endm
 
 leerFichaActual macro 
     local ENPOS1, ENPOS2, ENPOS3, ENPOS4, ENPOS5, ENPOS6, ENPOS7, ENPOS8, TURNOCORRECTO
+    
     xor bx,bx
     mov bl,comando[0] ;LETRA -> posNUMERO[LETRA]
     mov si,bx
     mov bl,comando[5] ;NUMERO -> posNUMERO
-
+    
+    push bx ; numero de arreglo a modificar
     cmp bl,1
     je ENPOS1
     cmp bl,2
@@ -316,10 +330,197 @@ leerFichaActual macro
         jmp TURNOCORRECTO
 
     TURNOCORRECTO:
+        push si ;posicion en el arreglo
+        xor ah,ah
+        push ax
         mov ah,comando[2]
         add ah,al
 endm
 
 leerDestino macro
+    local IMPAR, PAR, MOVALIDO, ENPOS1, ENPOS2, ENPOS3, ENPOS4, ENPOS5, ENPOS6, ENPOS7, ENPOS8, ERROR, FIN
+
+    mov si,cx
+    mov di,dx
+
+    xor bx,bx
+    mov bl,comando[si] ;LETRA -> posNUMERO[LETRA]
+    mov si,bx
+    mov bl,comando[di] ;NUMERO -> posNUMERO
+
+    cmp bl,1
+    je IMPAR
+    cmp bl,2
+    je PAR
+    cmp bl,3
+    je IMPAR
+    cmp bl,4
+    je PAR
+    cmp bl,5
+    je IMPAR
+    cmp bl,6
+    je PAR
+    cmp bl,7
+    je IMPAR
+    cmp bl,8
+    je PAR
     
+    IMPAR:
+        cmp si,0
+        je MOVALIDO
+        cmp si,2
+        je MOVALIDO
+        cmp si,4
+        je MOVALIDO
+        cmp si,6
+        je MOVALIDO
+
+    PAR:
+        cmp si,1
+        je MOVALIDO
+        cmp si,3
+        je MOVALIDO
+        cmp si,5
+        je MOVALIDO
+        cmp si,7
+        je MOVALIDO
+
+    MOVALIDO:
+        cmp bl,1
+        je ENPOS1
+        cmp bl,2
+        je ENPOS2
+        cmp bl,3
+        je ENPOS3
+        cmp bl,4
+        je ENPOS4
+        cmp bl,5
+        je ENPOS5
+        cmp bl,6
+        je ENPOS6
+        cmp bl,7
+        je ENPOS7
+        cmp bl,8
+        je ENPOS8
+
+    ENPOS1:
+        mov al,pos1[si]
+        jmp TURNOCORRECTO
+
+    ENPOS2:
+        mov al,pos2[si]
+        jmp TURNOCORRECTO
+
+    ENPOS3:
+        mov al,pos3[si]
+        jmp TURNOCORRECTO
+
+    ENPOS4:
+        mov al,pos4[si]
+        jmp TURNOCORRECTO
+
+    ENPOS5:
+        mov al,pos5[si]
+        jmp TURNOCORRECTO
+
+    ENPOS6:
+        mov al,pos6[si]
+        jmp TURNOCORRECTO
+
+    ENPOS7:
+        mov al,pos7[si]
+        jmp TURNOCORRECTO
+
+    ENPOS8:
+        mov al,pos8[si]
+        jmp TURNOCORRECTO
+
+    TURNOCORRECTO:
+        cmp al,32
+        jne ERROR
+        je FIN
+
+    ERROR:
+        print errorBlanco
+        mov comando[7],1100b
+        jmp FIN
+
+    FIN:
+        ;getChar
+        
+endm
+
+actualizarMovimiento macro
+    local ENPOS1, ENPOS2, ENPOS3, ENPOS4, ENPOS5, ENPOS6, ENPOS7, ENPOS8, TURNOCORRECTO, INICIO, BORRARANTERIOR, FIN
+    pop ax
+    xor di,di
+
+    INICIO:
+        cmp bl,1
+        je ENPOS1
+        cmp bl,2
+        je ENPOS2
+        cmp bl,3
+        je ENPOS3
+        cmp bl,4
+        je ENPOS4
+        cmp bl,5
+        je ENPOS5
+        cmp bl,6
+        je ENPOS6
+        cmp bl,7
+        je ENPOS7
+        cmp bl,8
+        je ENPOS8
+
+    ENPOS1:
+        mov pos1[si],al
+        jmp TURNOCORRECTO
+
+    ENPOS2:
+        mov pos2[si],al
+        jmp TURNOCORRECTO
+
+    ENPOS3:
+        mov pos3[si],al
+        jmp TURNOCORRECTO
+
+    ENPOS4:
+        mov pos4[si],al
+        jmp TURNOCORRECTO
+
+    ENPOS5:
+        mov pos5[si],al
+        jmp TURNOCORRECTO
+
+    ENPOS6:
+        mov pos6[si],al
+        jmp TURNOCORRECTO
+
+    ENPOS7:
+        mov pos7[si],al
+        jmp TURNOCORRECTO
+
+    ENPOS8:
+        mov pos8[si],al
+        jmp TURNOCORRECTO
+
+    TURNOCORRECTO:
+        cmp di,0
+        je BORRARANTERIOR
+        cmp di,1
+        je FIN
+        
+
+    BORRARANTERIOR:
+        pop si
+        pop bx
+        mov al,32
+        inc di
+        jmp INICIO
+    
+    FIN:
+        mov comando[3],1b
+        mov comando[7],0000b 
+
 endm

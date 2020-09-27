@@ -44,7 +44,9 @@ printChar macro char
     pop dx
 endm
 
-llenarInicial macro n1,n2,n3,b1,b2,b3
+llenarInicial macro n1,n2,n3,b1,b2,b3,sp1,sp2
+    local SPACE1, SPACE2
+
     mov b1[0],11b
     mov b1[2],11b
     mov b1[4],11b
@@ -69,6 +71,21 @@ llenarInicial macro n1,n2,n3,b1,b2,b3
     mov n3[3],10b
     mov n3[5],10b
     mov n3[7],10b
+
+    xor si,si
+    mov cx,8
+    SPACE1:
+        mov sp1[si],32
+        inc si
+        loop SPACE1
+    
+    xor si,si
+    mov cx,8
+    SPACE2:
+        mov sp2[si],32
+        inc si
+        loop SPACE2
+
 endm
 
 imprimirTablero macro p8,p7,p6,p5,p4,p3,p2,p1,arr,g

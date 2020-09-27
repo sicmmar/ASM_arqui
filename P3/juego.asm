@@ -254,7 +254,7 @@ movimiento macro accion, errMV
         leerDestino
         cmp comando[7],1100b
         jne REFRESH
-        jmp FIN
+        je FIN
 
     ERROR:
         print errMV
@@ -374,6 +374,7 @@ leerDestino macro
         je MOVALIDO
         cmp si,6
         je MOVALIDO
+        jne ERROR
 
     PAR:
         cmp si,1
@@ -384,6 +385,7 @@ leerDestino macro
         je MOVALIDO
         cmp si,7
         je MOVALIDO
+        jne ERROR
 
     MOVALIDO:
         cmp bl,1
@@ -445,7 +447,7 @@ leerDestino macro
     ERROR:
         print errorBlanco
         mov comando[7],1100b
-        jmp FIN
+        ;jmp FIN
 
     FIN:
         
@@ -528,6 +530,7 @@ actualizarMovimiento macro
         
 
     BORRARANTERIOR:
+        xor dx,dx
         pop si
         pop bx
         mov al,32

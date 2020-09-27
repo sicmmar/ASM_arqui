@@ -84,14 +84,14 @@ main proc
 		jmp MenuPrincipal
 
 	INICIAL:
-		llenarInicial pos8,pos7,pos6,pos3,pos2,pos1
+		llenarInicial pos8,pos7,pos6,pos3,pos2,pos1,pos4,pos5
 		mov comando[2],1b
 		mov comando[3],0b
 		jmp INICIOJUEGO
 
 
 	INICIOJUEGO:
-        mov comando[7],00b
+        mov comando[7],0000b
 		mov comando[4],0b
     	accionesDef comando
 		print msjOpc1
@@ -215,27 +215,27 @@ main proc
 	ErrorAbrir:
 		print msmError1
 		getChar
-		jmp MenuPrincipal
+		jmp INICIOJUEGO
 
 	ErrorLeer:
 		print msmError2
 		getChar
-		jmp MenuPrincipal
+		jmp INICIOJUEGO
 
 	ErrorCrear:
 		print msmError3
 		getChar
-		jmp MenuPrincipal
+		jmp INICIOJUEGO
 
 	ErrorEscribir:
 		print msmError4
 		getChar
-		jmp MenuPrincipal
+		jmp INICIOJUEGO
 
 	ErrorCerrar:
 		print msmError5
 		getChar
-		jmp MenuPrincipal
+		jmp INICIOJUEGO
 
 	SHOWCREADO:
 		print showSuccess

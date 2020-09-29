@@ -6,7 +6,7 @@ include macros.asm
 ;db -> dato byte -> 8 bits
 ;dw -> dato word -> 16 bits
 ;dd -> doble word -> 32 bits
-arregloAux db 100 dup('$'),'$'
+arregloAux db 70 dup('$'),10,13
 bufferLectura db 30000 dup('$')
 bufferEscritura db 200 dup('$')
 resultados db 1000 dup('$')
@@ -33,6 +33,7 @@ mulRes1 db ' mul','$'
 mulRes2 db ' *','$'
 divRes1 db ' div','$'
 divRes2 db ' /','$'
+idRes db ' id','$'
 
 
 encab db 10,10,13,'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA',10,13,'FACULTAD DE INGENIERIA',10,13,'CIENCIAS Y SISTEMAS',10,13,'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1','$'
@@ -89,6 +90,11 @@ main proc
         mov handle2,00h
 
         crearF rutaAux,handle2
+        cleanArr arregloAux
+        tamanoArr bufferLectura
+        mov bx,cx
+        sub bx,1
+        mov di,bx
         calcularJson bufferLectura
         cerrarF handle2
         mov handle2,00h
@@ -157,6 +163,7 @@ main proc
 
 
 	SALIR:
+        borrarF rutaAux
 		print msjOpc3
 		mov ah,4ch
 		int 21h

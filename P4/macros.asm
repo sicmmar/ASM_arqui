@@ -115,6 +115,63 @@ ConvertirString macro buffer
         pop si
 endm
 
+CovertirAscii macro numero
+	LOCAL INICIO,FIN, NEGATIVO, NEGAT,FINEG
+    push ax
+    push bx
+    push cx
+    push si
+
+	xor ax,ax
+	xor bx,bx
+	xor cx,cx
+	mov bx,10	;multiplicador 10
+	xor si,si
+	INICIO:
+		mov cl,numero[si] 
+		cmp cl,45
+		je NEGATIVO
+		cmp cl,48
+		jl FIN
+		cmp cl,57
+		jg FIN
+		inc si
+		sub cl,48	;restar 48 para que me de el numero
+		mul bx		;multplicar ax por 10
+		add ax,cx	;sumar lo que tengo mas el siguiente
+		jmp INICIO
+
+	NEGATIVO:
+		inc si
+		jmp NEGAT
+
+	NEGAT:
+		mov cl,numero[si]
+		cmp cl,48
+		jl FINEG
+		cmp cl,57
+		jg FINEG
+		inc si
+		sub cl,48
+		mul bx		;multplicar ax por 10
+		add ax,cx	;sumar lo que tengo mas el siguiente
+		jmp NEGAT
+
+	FINEG:
+		mov cx,ax
+		mov bx,2
+		mul bx
+		sub cx,ax
+		mov ax,cx
+
+
+	FIN:
+        pop si
+        pop cx
+        pop bx
+        pop ax
+endm
+
 ;=========================== FICHEROS ===================
 abrirF macro ruta,handle
     mov ah,3dh
@@ -175,6 +232,12 @@ cerrarF macro handle
 	mov bx,handle
 	int 21h
 	jc ErrorCerrar
+endm
+
+borrarF macro ruta
+    mov ah,41h
+    lea dx,ruta
+    int 21h
 endm
 
 ;==================== COMPARACIONES ========================

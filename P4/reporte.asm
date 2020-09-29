@@ -114,39 +114,88 @@ endm
 
 ; =============== LEER JSON ====================
 calcularJson macro archivo
-    local LEER, STRING, FIN
+    local LEER, STRING, FIN, QUIZANUM, FIJONUM, NOESNUM
     ;resultados es el arr res
     xor si,si
-    xor di,di
-
-    cleanArr arregloAux
-    tamanoArr archivo
-    mov bx,cx
-    sub bx,1
     
     LEER:
-        cmp si,bx
-        je FIN
+        cmp si,di
+        jge FIN
         cmp archivo[si],'"'
         je STRING
+        cmp archivo[si],'-'
+        je NEGATIVO
+        cmp archivo[si],48
+        jge QUIZANUM
+        inc si
+        jmp LEER
+
+    NEGATIVO:
+        cleanArr arregloAux
+        push di
+        xor di,di
+        mov arregloAux[di],'-'
+        inc di
+        inc si
+        guardarNumero archivo
+        escribirF handle2,sizeof arregloAux, arregloAux
+        jmp LEER
+    
+    QUIZANUM:
+        cmp archivo[si],57
+        jle FIJONUM
+        jmp NOESNUM
+    
+    FIJONUM:
+        cleanArr arregloAux
+        push di
+        xor di,di
+        guardarNumero archivo
+        escribirF handle2,sizeof arregloAux, arregloAux
+        jmp LEER
+
+    NOESNUM:
         inc si
         jmp LEER
     
     STRING:
         inc si
+        cleanArr arregloAux
         obtenerEntreComilla archivo
         escribirF handle2,sizeof arregloAux, arregloAux
         jmp LEER
     
     FIN:
         ;fin de la lectura del archivo
-        print addRes1
+endm
+
+guardarNumero macro archivo
+    local INICIO, QUIZANUM, FIJONUM, FIN
+
+    INICIO:
+        cmp archivo[si],48
+        jge QUIZANUM
+        jmp FIN
+
+    QUIZANUM:
+        cmp archivo[si],57
+        jle FIJONUM
+        jmp FIN
+
+    FIJONUM:
+        mov al,archivo[si]
+        mov arregloAux[di],al
+        inc si
+        inc di
+        jmp INICIO
+
+    FIN:
+        pop di
 endm
 
 obtenerEntreComilla macro archivo
     local INICIO, FIN, FIJOMAYUS, NOESMAYUS, QUIZAMAYUS
 
-    cleanArr arregloAux
     push di
     push ax
     xor ax,ax
@@ -186,12 +235,7 @@ obtenerEntreComilla macro archivo
         jmp INICIO
 
     FIN:
-        mov arregloAux[di],10
-        inc di
-        mov arregloAux[di],13
-        inc di
         inc si
-        push ax
+        pop ax
         pop di
-        tamanoArr arregloAux
 endm

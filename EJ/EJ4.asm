@@ -7,6 +7,13 @@ ETIQUETA:
 	int 21h
 endm
 
+getChar macro
+    mov ah,0dh
+    int 21h
+    mov ah,01h
+    int 21h
+endm
+
 ConvertirString macro buffer
 	LOCAL Dividir,Dividir2,FinCr3,NEGATIVO,FIN2,FIN
 	xor si,si
@@ -46,7 +53,7 @@ ConvertirString macro buffer
 endm
 
 CovertirAscii macro numero
-	LOCAL INICIO,FIN
+	LOCAL INICIO,FIN, NEGATIVO, NEGAT,FINEG
 	xor ax,ax
 	xor bx,bx
 	xor cx,cx
@@ -54,6 +61,8 @@ CovertirAscii macro numero
 	xor si,si
 	INICIO:
 		mov cl,numero[si] 
+		cmp cl,45
+		je NEGATIVO
 		cmp cl,48
 		jl FIN
 		cmp cl,57
@@ -63,6 +72,31 @@ CovertirAscii macro numero
 		mul bx		;multplicar ax por 10
 		add ax,cx	;sumar lo que tengo mas el siguiente
 		jmp INICIO
+
+	NEGATIVO:
+		inc si
+		jmp NEGAT
+
+	NEGAT:
+		mov cl,numero[si]
+		cmp cl,48
+		jl FINEG
+		cmp cl,57
+		jg FINEG
+		inc si
+		sub cl,48
+		mul bx		;multplicar ax por 10
+		add ax,cx	;sumar lo que tengo mas el siguiente
+		jmp NEGAT
+
+	FINEG:
+		mov cx,ax
+		mov bx,2
+		mul bx
+		sub cx,ax
+		mov ax,cx
+
+
 	FIN:
 endm
 
@@ -91,6 +125,7 @@ endm
 holamundo db 0ah,0dh,'Hola mundo','$'
 buffer db 100 dup('$')
 buffer2 db 100 dup('$')
+buffer3 db 100 dup('$')
 resultado db 100 dup('$')
 .code
 

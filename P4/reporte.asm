@@ -114,7 +114,7 @@ endm
 
 ; =============== LEER JSON ====================
 calcularJson macro archivo
-    local LEER, LLAVEA, STRING, FIN
+    local LEER, STRING, FIN
     ;resultados es el arr res
     xor si,si
     xor di,di
@@ -122,34 +122,29 @@ calcularJson macro archivo
     cleanArr arregloAux
     tamanoArr archivo
     mov bx,cx
+    sub bx,1
     
     LEER:
         cmp si,bx
         je FIN
-        cmp archivo[si],'{'
-        je LLAVEA
         cmp archivo[si],'"'
         je STRING
         inc si
         jmp LEER
     
-    LLAVEA:
-        inc di
-        inc si
-        jmp LEER
-
     STRING:
         inc si
         obtenerEntreComilla archivo
-        push arregloAux
+        escribirF handle2,sizeof arregloAux, arregloAux
         jmp LEER
     
     FIN:
         ;fin de la lectura del archivo
+        print addRes1
 endm
 
 obtenerEntreComilla macro archivo
-    local INICIO, FIN
+    local INICIO, FIN, FIJOMAYUS, NOESMAYUS, QUIZAMAYUS
 
     cleanArr arregloAux
     push di
@@ -162,15 +157,41 @@ obtenerEntreComilla macro archivo
     INICIO:
         cmp archivo[si],'"'
         je FIN
+        cmp archivo[si],65
+        jge QUIZAMAYUS
         mov al,archivo[si]
         mov arregloAux[di],al
         inc si
         inc di
         jmp INICIO
 
+    QUIZAMAYUS:
+        cmp archivo[si],90
+        jle FIJOMAYUS
+        jmp NOESMAYUS
+    
+    FIJOMAYUS:
+        mov al,archivo[si]
+        add al,32 ;para que sea minuscula
+        mov arregloAux[di],al
+        inc di
+        inc si
+        jmp INICIO
+    
+    NOESMAYUS:
+        mov al,archivo[si]
+        mov arregloAux[di],al
+        inc di
+        inc si
+        jmp INICIO
 
     FIN:
+        mov arregloAux[di],10
+        inc di
+        mov arregloAux[di],13
+        inc di
         inc si
         push ax
         pop di
+        tamanoArr arregloAux
 endm

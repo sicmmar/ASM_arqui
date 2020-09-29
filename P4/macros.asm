@@ -49,7 +49,8 @@ cleanArr macro arr
     PUSH AX
 
     xor si,si
-    mov bx,sizeof arr
+    tamanoArr arr
+    mov bx,cx
     CONTINUE:
         cmp si,bx
         je FIN
@@ -134,6 +135,7 @@ leerF macro numbytes,buffer,handle
 endm
 
 crearF macro ruta, handle
+    xor ax,ax
     mov ah,3ch
     mov cx,00h
     lea dx, ruta
@@ -168,6 +170,7 @@ getRuta macro buffer
 endm
 
 cerrarF macro handle
+    xor ax,ax
 	mov ah,3eh
 	mov bx,handle
 	int 21h

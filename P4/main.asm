@@ -3,24 +3,31 @@ include macros.asm
 .model small ;declaracion del programa
 .stack ;segmento de stack
 .data ;segmento de datos
+;db -> dato byte -> 8 bits
+;dw -> dato word -> 16 bits
+;dd -> doble word -> 32 bits
 arregloAux db 100 dup('$'),'$'
-bufferLectura dw 30000 dup('$')
+bufferLectura db 30000 dup('$')
 bufferEscritura db 200 dup('$')
 resultados db 1000 dup('$')
 handleFichero dw ?
 handle2 dw ?
 
-exit db 'exit'
-shMedia db 'show media'
+exit db 'exit','$'
+shMedia db 'show media','$'
 mediaes db 10,13,'::La media es:                                                                       ','$' ;pos 17
-shModa db 'show moda'
+shModa db 'show moda','$'
 modaes db 10,13,'::La moda es:                                                                       ','$' ;pos 16
-shMediana db 'show mediana'
+shMediana db 'show mediana','$'
 medianaes db 10,13,'::La mediana es:                                                                       ','$' ;pos 19
-shMayor db 'show mayor'
+shMayor db 'show mayor','$'
 mayores db 10,13,'::El n',163,'mero mayor es:                                                                       ','$' ;pos 24
-shMenor db 'show menor'
+shMenor db 'show menor','$'
 menores db 10,13,'::El n',163,'mero menor es:                                                                       ','$' ;pos 24
+addRes1 db 'add','$'
+addRes2 db 'ADD','$'
+subRes1 db 'sub','$'
+
 
 encab db 10,10,13,'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA',10,13,'FACULTAD DE INGENIERIA',10,13,'CIENCIAS Y SISTEMAS',10,13,'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1','$'
 enc db 10,10,13,'NOMBRE: ASUNCION MARIANA SIC SOR',10,13,'CARNET: 201504051',10,13,'SECCION: A','$'
@@ -72,11 +79,9 @@ main proc
         abrirF arregloAux,handle2
         leerF sizeof bufferLectura, bufferLectura, handle2
         cerrarF handle2
+        calcularJson bufferLectura
 
         print loadSuccess
-        getChar
-        print saltoln
-        print bufferLectura
         getChar
 
         mov handle2,00h
@@ -88,21 +93,27 @@ main proc
         cleanArr arregloAux
         ObtenerTexto arregloAux
 
+        tamanoArr exit
         comparar arregloAux,exit
         cmp ah,1b
         je EXITCONSOLA
+        tamanoArr shMedia
         comparar arregloAux,shMedia
         cmp ah,1b
         je MEDIA
+        tamanoArr shModa
         comparar arregloAux,shModa
         cmp ah,1b
         je MODA
+        tamanoArr shMediana
         comparar arregloAux,shMediana
         cmp ah,1b
         je MEDIANA
+        tamanoArr shMayor
         comparar arregloAux,shMayor
         cmp ah,1b
         je MAYOR
+        tamanoArr shMenor
         comparar arregloAux,shMenor
         cmp ah,1b
         je MENOR

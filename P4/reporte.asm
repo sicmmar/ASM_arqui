@@ -111,3 +111,66 @@ cargaFichero macro posicion
         loop FIRST
 
 endm
+
+; =============== LEER JSON ====================
+calcularJson macro archivo
+    local LEER, LLAVEA, STRING, FIN
+    ;resultados es el arr res
+    xor si,si
+    xor di,di
+
+    cleanArr arregloAux
+    tamanoArr archivo
+    mov bx,cx
+    
+    LEER:
+        cmp si,bx
+        je FIN
+        cmp archivo[si],'{'
+        je LLAVEA
+        cmp archivo[si],'"'
+        je STRING
+        inc si
+        jmp LEER
+    
+    LLAVEA:
+        inc di
+        inc si
+        jmp LEER
+
+    STRING:
+        inc si
+        obtenerEntreComilla archivo
+        push arregloAux
+        jmp LEER
+    
+    FIN:
+        ;fin de la lectura del archivo
+endm
+
+obtenerEntreComilla macro archivo
+    local INICIO, FIN
+
+    cleanArr arregloAux
+    push di
+    push ax
+    xor ax,ax
+    xor di,di
+    mov arregloAux[0],32
+    inc di
+
+    INICIO:
+        cmp archivo[si],'"'
+        je FIN
+        mov al,archivo[si]
+        mov arregloAux[di],al
+        inc si
+        inc di
+        jmp INICIO
+
+
+    FIN:
+        inc si
+        push ax
+        pop di
+endm

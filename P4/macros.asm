@@ -66,6 +66,53 @@ cleanArr macro arr
     POP SI
 endm
 
+ConvertirString macro buffer
+	LOCAL Dividir,Dividir2,FinCr3,NEGATIVO,FIN2,FIN
+    push si
+    push cx 
+    push bx
+    push dx
+
+	xor si,si
+	xor cx,cx
+	xor bx,bx
+	xor dx,dx
+
+	mov dl,0ah
+	test ax,1000000000000000
+	jnz NEGATIVO
+	jmp Dividir2
+
+	NEGATIVO:
+		neg ax
+		mov buffer[si],45
+		inc si
+		jmp Dividir2
+
+	Dividir:
+		xor ah,ah
+	Dividir2:
+		div dl
+		inc cx
+		push ax
+		cmp al,00h
+		je FinCr3
+		jmp Dividir
+	FinCr3:
+		pop ax
+		add ah,30h
+		mov buffer[si],ah
+		inc si
+		loop FinCr3
+		mov ah,24h
+		mov buffer[si],ah
+		inc si
+	FIN:
+        pop dx
+        pop bx
+        pop cx
+        pop si
+endm
 
 ;=========================== FICHEROS ===================
 abrirF macro ruta,handle
@@ -131,9 +178,10 @@ endm
 comparar macro actual, molde
     local INICIO, FIN
 
+    push si
     xor si,si
     xor ax,ax
-    mov cx,sizeof molde
+    ;mov cx,sizeof molde
 
     INICIO:
         mov bh,actual[si]
@@ -145,4 +193,24 @@ comparar macro actual, molde
     
     FIN:
         mov al,0b
+
+    pop si      
+endm
+
+tamanoArr macro actual
+    local INICIO, FIN
+    push si
+    xor si,si
+    
+    INICIO:
+        cmp actual[si],'$'
+        je FIN
+        inc si
+        jmp INICIO
+    
+    FIN:
+        inc si
+        mov cx,si
+
+    pop si
 endm

@@ -174,12 +174,15 @@ endm
 
 ;=========================== FICHEROS ===================
 abrirF macro ruta,handle
+    push ax
+    xor ax,ax
     mov ah,3dh
     mov al,010b
     lea dx,ruta
     int 21h
     mov handle,ax
     jc ErrorAbrir
+    push ax
 endm
 
 leerF macro numbytes,buffer,handle
@@ -192,6 +195,7 @@ leerF macro numbytes,buffer,handle
 endm
 
 crearF macro ruta, handle
+    push ax
     xor ax,ax
     mov ah,3ch
     mov cx,00h
@@ -199,15 +203,18 @@ crearF macro ruta, handle
     int 21h
     mov handle,ax
     jc ErrorCrear
+    pop ax
 endm
 
 escribirF macro handle, numBytes, buffer
+    push ax
     mov ah,40h
     mov bx,handle
     mov cx,numBytes
     lea dx,buffer
     int 21h
     jc ErrorEscribir
+    pop ax
 endm
 
 getRuta macro buffer
@@ -227,11 +234,13 @@ getRuta macro buffer
 endm
 
 cerrarF macro handle
+    push ax
     xor ax,ax
 	mov ah,3eh
 	mov bx,handle
 	int 21h
 	jc ErrorCerrar
+    pop ax
 endm
 
 borrarF macro ruta
@@ -261,6 +270,7 @@ comparar macro actual, molde
         mov al,0b
 
     pop si      
+    ;si son iguales, ah es 1b si no, al,0b
 endm
 
 tamanoArr macro actual

@@ -13,18 +13,19 @@ resultados db 1000 dup('$')
 handleFichero dw ?
 handle2 dw ?
 rutaAux db 'nuevo.arq',00h,00h
+ruta2 db 'nuev2.arq',00h,00h
 
 exit db 'exit','$'
 shMedia db 'show media','$'
-mediaes db 10,13,'::La media es:                          ','$' ;pos 17
+mediaes db 10,13,'::La media es:                      ','$' ;pos 17
 shModa db 'show moda','$'
-modaes db 10,13,'::La moda es:                          ','$' ;pos 16
+modaes db 10,13,'::La moda es:                      ','$' ;pos 16
 shMediana db 'show mediana','$'
-medianaes db 10,13,'::La mediana es:                          ','$' ;pos 19
+medianaes db 10,13,'::La mediana es:                      ','$' ;pos 19
 shMayor db 'show mayor','$'
-mayores db 10,13,'::El n',163,'mero mayor es:                          ','$' ;pos 24
+mayores db 10,13,'::El n',163,'mero mayor es:                      ','$' ;pos 24
 shMenor db 'show menor','$'
-menores db 10,13,'::El n',163,'mero menor es:                          ','$' ;pos 24
+menores db 10,13,'::El n',163,'mero menor es:                      ','$' ;pos 24
 addRes1 db ' add','$'
 addRes2 db ' +','$'
 subRes1 db ' sub','$'
@@ -33,6 +34,7 @@ mulRes1 db ' mul','$'
 mulRes2 db ' *','$'
 divRes1 db ' div','$'
 divRes2 db ' /','$'
+numeral db ' #','$'
 idRes db ' id','$'
 
 
@@ -99,6 +101,28 @@ main proc
         cerrarF handle2
         mov handle2,00h
 
+        ;cleanArr arregloAux
+        ;ConvertirString arregloAux
+        ;print arregloAux
+        crearF ruta2,handleFichero
+        abrirF rutaAux,handle2
+        leerF sizeof bufferLectura,bufferLectura,handle2
+        xor dx,dx
+        mov bl,72
+        div bl
+        mov si,ax
+        cerrarF handle2
+        mov handle2,00h
+
+
+        abrirF rutaAux,handle2
+        analisis2
+        cerrarF handle2
+        cerrarF handleFichero
+        mov handle2,00h
+        mov handleFichero,00h
+        borrarF rutaAux
+
         print loadSuccess
         getChar
 
@@ -163,7 +187,6 @@ main proc
 
 
 	SALIR:
-        borrarF rutaAux
 		print msjOpc3
 		mov ah,4ch
 		int 21h

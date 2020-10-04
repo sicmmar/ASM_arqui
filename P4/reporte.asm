@@ -171,7 +171,8 @@ endm
 
 guardarNumero macro archivo
     local INICIO, QUIZANUM, FIJONUM, FIN
-
+    push ax
+    ;xor ax,ax
     INICIO:
         cmp archivo[si],48
         jge QUIZANUM
@@ -190,6 +191,7 @@ guardarNumero macro archivo
         jmp INICIO
 
     FIN:
+        pop ax
         pop di
 endm
 
@@ -238,4 +240,45 @@ obtenerEntreComilla macro archivo
         inc si
         pop ax
         pop di
+endm
+
+analisis2 macro
+    local INICIO, FIN, ESID, NUMERALITO
+    
+    xor di,di
+
+    INICIO:
+        cmp di,si
+        jge FIN
+
+        leerF sizeof arregloAux, arregloAux, handle2
+
+        tamanoArr numeral
+        comparar arregloAux,numeral
+        cmp ah,1b
+        je NUMERALITO
+
+        tamanoArr idRes
+        comparar arregloAux,idRes
+        cmp ah,1b
+        je ESID
+
+        escribirF handleFichero,sizeof arregloAux,arregloAux
+        inc di
+        jmp INICIO
+
+    NUMERALITO:
+        inc di
+        jmp INICIO
+    
+    ESID:
+        leerF sizeof arregloAux, arregloAux, handle2
+        inc di
+        mov arregloAux[0],'!'
+        escribirF handleFichero,sizeof arregloAux,arregloAux
+        inc di
+        jmp INICIO
+
+
+    FIN:
 endm

@@ -7,13 +7,17 @@ include macros.asm
 ;dw -> dato word -> 16 bits
 ;dd -> doble word -> 32 bits
 arregloAux db 70 dup('$'),10,13
+variable word 34 dup('$'),10,13
+auxWord word 34 dup('$'),10,13
 bufferLectura db 30000 dup('$')
 bufferEscritura db 200 dup('$')
 resultados db 1000 dup('$')
 handleFichero dw ?
 handle2 dw ?
+handle dw ?
 rutaAux db 'nuevo.arq',00h,00h
 ruta2 db 'nuev2.arq',00h,00h
+answers db 'resultados.arq',00h,00h
 
 exit db 'exit','$'
 shMedia db 'show media','$'
@@ -101,9 +105,6 @@ main proc
         cerrarF handle2
         mov handle2,00h
 
-        ;cleanArr arregloAux
-        ;ConvertirString arregloAux
-        ;print arregloAux
         crearF ruta2,handleFichero
         abrirF rutaAux,handle2
         leerF sizeof bufferLectura,bufferLectura,handle2
@@ -122,6 +123,29 @@ main proc
         mov handle2,00h
         mov handleFichero,00h
         borrarF rutaAux
+
+        abrirF ruta2,handle2
+        leerF sizeof bufferLectura,bufferLectura,handle2
+        xor dx,dx
+        mov bl,72
+        div bl
+        mov si,ax
+        cerrarF handle2
+        mov handle2,00h
+
+        crearF answers,handleFichero
+        abrirF ruta2,handle2
+        crearF rutaAux,handle
+        leerF sizeof arregloAux,arregloAux,handle2
+        escribirF handleFichero,sizeof arregloAux,arregloAux
+        operar
+        cerrarF handle
+        cerrarF handle2
+        cerrarF handleFichero
+        borrarF ruta2
+        mov handle,00h
+        mov handle2,00h
+        mov handleFichero,00h
 
         print loadSuccess
         getChar

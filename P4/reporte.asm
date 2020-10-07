@@ -243,7 +243,7 @@ obtenerEntreComilla macro archivo
 endm
 
 analisis2 macro
-    local INICIO, FIN, ESID, NUMERALITO
+    local INICIO, FIN, ESID, NUMERALITO, MULTI, DIVIS, SUMA, RESTA
     
     xor di,di
 
@@ -253,19 +253,66 @@ analisis2 macro
 
         leerF sizeof arregloAux, arregloAux, handle2
 
-        tamanoArr numeral
         comparar arregloAux,numeral
         cmp ah,1b
         je NUMERALITO
 
-        tamanoArr idRes
         comparar arregloAux,idRes
         cmp ah,1b
         je ESID
 
+        comparar arregloAux,addRes1
+        cmp ah,1b
+        je SUMA
+
+        comparar arregloAux,subRes1
+        cmp ah,1b
+        je RESTA
+
+        comparar arregloAux,mulRes1
+        cmp ah,1b
+        je MULTI
+
+        comparar arregloAux,divRes1
+        cmp ah,1b
+        je DIVIS
+
         escribirF handleFichero,sizeof arregloAux,arregloAux
         inc di
         jmp INICIO
+
+    SUMA:
+        cleanArr arregloAux
+        mov arregloAux[0],32
+        mov arregloAux[1],'+'
+        escribirF handleFichero, sizeof arregloAux, arregloAux
+        inc di
+        jmp INICIO
+
+    RESTA:
+        cleanArr arregloAux
+        mov arregloAux[0],32
+        mov arregloAux[1],'-'
+        escribirF handleFichero, sizeof arregloAux, arregloAux
+        inc di
+        jmp INICIO
+
+    MULTI:
+        cleanArr arregloAux
+        mov arregloAux[0],32
+        mov arregloAux[1],'*'
+        escribirF handleFichero, sizeof arregloAux, arregloAux
+        inc di
+        jmp INICIO
+
+    DIVIS:
+        cleanArr arregloAux
+        mov arregloAux[0],32
+        mov arregloAux[1],'/'
+        escribirF handleFichero, sizeof arregloAux, arregloAux
+        inc di
+        jmp INICIO
+
 
     NUMERALITO:
         inc di
@@ -281,4 +328,76 @@ analisis2 macro
 
 
     FIN:
+        mov dx,di
+endm
+
+operar macro
+    local INICIO, FIN, ESCR, QUIZAID
+    
+    xor di,di
+
+    INICIO:
+        cmp di,si
+        jge FIN
+
+        cleanArr arregloAux
+        leerF sizeof arregloAux, arregloAux, handle2
+
+        cmp arregloAux[0],32
+        je QUIZAID
+
+        escribirF handle,sizeof arregloAux,arregloAux
+        inc di
+        jmp INICIO
+
+    QUIZAID:
+        cmp arregloAux[1],'+'
+        je ESCR
+        cmp arregloAux[1],'-'
+        je ESCR
+        cmp arregloAux[1],'*'
+        je ESCR 
+        cmp arregloAux[1],'/'
+        je ESCR
+
+        escribirF handleFichero,sizeof arregloAux,arregloAux
+        cerrarF handle
+        mov handle,00h
+        ;aqui va la magia de la operacion :o 
+        operacionFinal
+        borrarF rutaAux
+        crearF rutaAux,handle
+        inc di
+        jmp INICIO
+
+    ESCR:
+        escribirF handle,sizeof arregloAux,arregloAux
+        inc di
+        jmp INICIO
+    
+
+    FIN:
+endm
+
+operacionFinal macro
+    local INICIO
+    push si
+    push di
+    xor di,di
+
+    abrirF rutaAux,handle2
+    leerF sizeof bufferLectura,bufferLectura,handle2
+    xor dx,dx
+    mov bl,72
+    div bl
+    mov si,ax
+    cerrarF handle2
+    mov handle2,00h
+
+    INICIO:
+        cmp di,si
+        ;darle la vuelta para operar
+
+    pop di
+    pop si
 endm

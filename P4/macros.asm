@@ -117,11 +117,6 @@ endm
 
 CovertirAscii macro numero
 	LOCAL INICIO,FIN, NEGATIVO, NEGAT,FINEG
-    push ax
-    push bx
-    push cx
-    push si
-
 	xor ax,ax
 	xor bx,bx
 	xor cx,cx
@@ -166,10 +161,6 @@ CovertirAscii macro numero
 
 
 	FIN:
-        pop si
-        pop cx
-        pop bx
-        pop ax
 endm
 
 ;=========================== FICHEROS ===================
@@ -256,7 +247,7 @@ comparar macro actual, molde
     push si
     xor si,si
     xor ax,ax
-    ;mov cx,sizeof molde
+    tamanoArr molde
 
     INICIO:
         mov bh,actual[si]

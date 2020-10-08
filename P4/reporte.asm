@@ -364,7 +364,9 @@ operar macro
         cerrarF handle
         mov handle,00h
         ;aqui va la magia de la operacion :o 
-        operacionFinal
+        print enc
+        getChar
+        operacionFinal 
         borrarF rutaAux
         crearF rutaAux,handle
         inc di
@@ -377,27 +379,84 @@ operar macro
     
 
     FIN:
+        cerrarF handle
+        mov handle,00h
+        ;aqui va la magia de la operacion :o 
+        print enc
+        getChar
+        operacionFinal
 endm
 
 operacionFinal macro
-    local INICIO
-    push si
-    push di
-    xor di,di
+    local INICIO, FIN, ESCR, BUSCARID, IN2, FIN2, VOLTEAR
 
-    abrirF rutaAux,handle2
-    leerF sizeof bufferLectura,bufferLectura,handle2
+    cleanArr arregloAux
+    abrirF rutaAux,handle
+    leerF sizeof bufferLectura,bufferLectura,handle
     xor dx,dx
     mov bl,72
     div bl
-    mov si,ax
-    cerrarF handle2
-    mov handle2,00h
+    mov dx,ax
+    cerrarF handle
+    mov handle,00h
+
+    abrirF rutaAux,handle
+    mov bx,0
+     
+    mov variable,dx
 
     INICIO:
-        cmp di,si
+        ;cleanArr arregloAux
+        cmp bx,variable
+        jge FIN
         ;darle la vuelta para operar
+        leerF sizeof arregloAux, arregloAux, handle
 
-    pop di
-    pop si
+        cmp arregloAux[1],'+'
+        je ESCR
+        cmp arregloAux[1],'-'
+        je ESCR
+        cmp arregloAux[1],'*'
+        je ESCR
+        cmp arregloAux[1],'/'
+        je ESCR
+        cmp arregloAux[0],'!'
+        je BUSCARID
+
+        
+        ConvertirAscii arregloAux
+        mov dx,ax
+        ;push dx
+        mov auxWord,dx
+        print auxWord 
+        getChar
+        
+        inc bx
+        jmp INICIO
+
+    ESCR:
+        xor dx,dx
+        mov dl,arregloAux[1]
+        ;push dx
+        mov auxWord,dx
+        print auxWord 
+        getChar
+        inc bx
+        jmp INICIO
+
+    BUSCARID:
+        xor dx,dx
+        mov dl,arregloAux[0]
+        ;push dx
+        mov auxWord,dx
+        print auxWord 
+        getChar
+        inc bx
+        jmp INICIO
+
+
+
+    FIN:
+        cerrarF handle
+        mov handle,00h
 endm

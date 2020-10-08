@@ -7,7 +7,7 @@ include macros.asm
 ;dw -> dato word -> 16 bits
 ;dd -> doble word -> 32 bits
 arregloAux db 70 dup('$'),10,13
-variable word 34 dup('$'),10,13
+variable word ?
 auxWord word 34 dup('$'),10,13
 bufferLectura db 30000 dup('$')
 bufferEscritura db 200 dup('$')
@@ -139,11 +139,9 @@ main proc
         leerF sizeof arregloAux,arregloAux,handle2
         escribirF handleFichero,sizeof arregloAux,arregloAux
         operar
-        cerrarF handle
         cerrarF handle2
         cerrarF handleFichero
         borrarF ruta2
-        mov handle,00h
         mov handle2,00h
         mov handleFichero,00h
 

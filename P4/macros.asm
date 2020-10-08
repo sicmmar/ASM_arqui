@@ -29,8 +29,6 @@ ObtenerTexto macro buffer
 endm
 
 getChar macro
-    mov ah,0dh
-    int 21h
     mov ah,01h
     int 21h
 endm
@@ -47,6 +45,8 @@ cleanArr macro arr
     local CONTINUE, FIN
     PUSH SI
     PUSH AX
+    push bx
+    push cx
 
     xor si,si
     tamanoArr arr
@@ -63,6 +63,8 @@ cleanArr macro arr
         mov al,'$'
         mov arr[si],al
 
+    pop cx
+    pop bx
     POP AX
     POP SI
 endm
@@ -115,12 +117,14 @@ ConvertirString macro buffer
         pop si
 endm
 
-CovertirAscii macro numero
+ConvertirAscii macro numero
 	LOCAL INICIO,FIN, NEGATIVO, NEGAT,FINEG
 	xor ax,ax
 	xor bx,bx
 	xor cx,cx
 	mov bx,10	;multiplicador 10
+    push si
+    push bx
 	xor si,si
 	INICIO:
 		mov cl,numero[si] 
@@ -161,11 +165,13 @@ CovertirAscii macro numero
 
 
 	FIN:
+        pop bx
+        pop si
 endm
 
 ;=========================== FICHEROS ===================
 abrirF macro ruta,handle
-    push ax
+    push dx
     xor ax,ax
     mov ah,3dh
     mov al,010b
@@ -173,16 +179,18 @@ abrirF macro ruta,handle
     int 21h
     mov handle,ax
     jc ErrorAbrir
-    push ax
+    pop dx
 endm
 
 leerF macro numbytes,buffer,handle
+    push bx
 	mov ah,3fh
 	mov bx,handle
 	mov cx,numbytes
 	lea dx,buffer
 	int 21h
 	jc ErrorLeer
+    pop bx
 endm
 
 crearF macro ruta, handle

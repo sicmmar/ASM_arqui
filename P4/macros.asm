@@ -119,12 +119,13 @@ endm
 
 ConvertirAscii macro numero
 	LOCAL INICIO,FIN, NEGATIVO, NEGAT,FINEG
+
+    push si
+    push bx
 	xor ax,ax
 	xor bx,bx
 	xor cx,cx
 	mov bx,10	;multiplicador 10
-    push si
-    push bx
 	xor si,si
 	INICIO:
 		mov cl,numero[si] 
@@ -195,6 +196,7 @@ endm
 
 crearF macro ruta, handle
     push ax
+    push dx
     xor ax,ax
     mov ah,3ch
     mov cx,00h
@@ -202,22 +204,26 @@ crearF macro ruta, handle
     int 21h
     mov handle,ax
     jc ErrorCrear
+    pop dx
     pop ax
 endm
 
 escribirF macro handle, numBytes, buffer
-    push ax
+    push bx
+    push dx
     mov ah,40h
     mov bx,handle
     mov cx,numBytes
     lea dx,buffer
     int 21h
     jc ErrorEscribir
-    pop ax
+    pop dx
+    pop bx
 endm
 
 getRuta macro buffer
     LOCAL INICIO,FIN
+    push si
     xor si,si
         INICIO:
             getChar
@@ -230,16 +236,17 @@ getRuta macro buffer
             mov buffer[si],00h
             inc si
             mov buffer[si],00h
+            pop si
 endm
 
 cerrarF macro handle
-    push ax
+    push bx
     xor ax,ax
 	mov ah,3eh
 	mov bx,handle
 	int 21h
 	jc ErrorCerrar
-    pop ax
+    pop bx
 endm
 
 borrarF macro ruta

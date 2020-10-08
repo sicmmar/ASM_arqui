@@ -335,6 +335,7 @@ operar macro
     local INICIO, FIN, ESCR, QUIZAID
     
     xor di,di
+    inc di
 
     INICIO:
         cmp di,si
@@ -364,8 +365,6 @@ operar macro
         cerrarF handle
         mov handle,00h
         ;aqui va la magia de la operacion :o 
-        print enc
-        getChar
         operacionFinal 
         borrarF rutaAux
         crearF rutaAux,handle
@@ -426,31 +425,24 @@ operacionFinal macro
         
         ConvertirAscii arregloAux
         mov dx,ax
-        ;push dx
-        mov auxWord,dx
-        print auxWord 
-        getChar
+        push dx
         
         inc bx
         jmp INICIO
 
     ESCR:
-        xor dx,dx
-        mov dl,arregloAux[1]
-        ;push dx
-        mov auxWord,dx
-        print auxWord 
-        getChar
+        xor ax,ax
+        mov al,arregloAux[1]
+        mov dx,1000
+        add dx,ax
+        push dx
         inc bx
         jmp INICIO
 
     BUSCARID:
         xor dx,dx
         mov dl,arregloAux[0]
-        ;push dx
-        mov auxWord,dx
-        print auxWord 
-        getChar
+        push dx
         inc bx
         jmp INICIO
 
@@ -458,5 +450,31 @@ operacionFinal macro
 
     FIN:
         cerrarF handle
+        borrarF rutaAux
+
         mov handle,00h
+        crearF rutaAux,handle
+        abrirF rutaAux,handle
+        xor bx,bx
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    IN2:
+        cmp bx,variable
+        jge FIN2
+
+        cleanArr arregloAux
+        pop dx 
+        mov ax,dx
+        ConvertirString arregloAux
+        escribirF handle, sizeof arregloAux, arregloAux
+
+        inc bx 
+        jmp IN2
+
+
+    FIN2:
+        cerrarF handle
+        mov handle,00h
+        print enc
+        getChar
+        
 endm

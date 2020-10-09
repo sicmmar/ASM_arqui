@@ -381,13 +381,11 @@ operar macro
         cerrarF handle
         mov handle,00h
         ;aqui va la magia de la operacion :o 
-        print enc
-        getChar
         operacionFinal
 endm
 
 operacionFinal macro
-    local INICIO, FIN, ESCR, BUSCARID, IN2, FIN2, VOLTEAR
+    local INICIO, FIN, ESCR, BUSCARID, IN2, FIN2, IN3, FIN3, SUMARS, MULTIPLICARS, DIVIDIRS, RESTARS, SACARRESPUESTA, FINALITO
 
     cleanArr arregloAux
     abrirF rutaAux,handle
@@ -474,7 +472,115 @@ operacionFinal macro
     FIN2:
         cerrarF handle
         mov handle,00h
-        print enc
+
+        abrirF rutaAux,handle
+        xor bx,bx
+        mov auxWord[0],'N'
+
+    IN3:
+        cmp bx,variable
+        jge FIN3
+
+        leerF sizeof arregloAux, arregloAux, handle
+
+        ConvertirAscii arregloAux
+        cmp ax,1042 ;multiplicacion
+        je MULTIPLICARS
+        cmp ax,1043 ;suma
+        je SUMARS
+        cmp ax,1045 ;resta
+        je RESTARS
+        cmp ax,1047 ;division
+        je DIVIDIRS
+
+        mov dx,ax
+        push dx
+        
+        inc bx
+        jmp IN3
+
+    MULTIPLICARS:
+        pop dx 
+        mov ax,dx
+        pop dx
+        mov cx,dx
+        imul cx
+        mov dx,ax
+        push dx
+        mov auxWord[0],'Y'
+        cleanArr arregloAux
+        ConvertirString arregloAux
+        print arregloAux
         getChar
+        inc bx
+        jmp IN3
+    
+    SUMARS:
+        pop dx
+        mov ax,dx
+        pop dx
+        add ax,dx
+        mov dx,ax
+        push dx
+        mov auxWord[0],'Y'
+        cleanArr arregloAux
+        ConvertirString arregloAux
+        print arregloAux
+        getChar
+        inc bx
+        jmp IN3
+
+    RESTARS:
+        pop dx 
+        mov ax,dx
+        pop dx
+        sub ax,dx
+        mov dx,ax
+        push dx
+        mov auxWord[0],'Y'
+        cleanArr arregloAux
+        ConvertirString arregloAux
+        print arregloAux
+        getChar
+        inc bx
+        jmp IN3
+    
+    DIVIDIRS:
+        pop dx
+        mov ax,dx
+        pop dx
+        mov cx,dx
+        xor dx,dx
+        idiv cx
+        mov dx,ax
+        push dx
+        mov auxWord[0],'Y'
+        cleanArr arregloAux
+        ConvertirString arregloAux
+        print arregloAux
+        getChar
+        inc bx
+        jmp IN3
+
+    FIN3:
+        cerrarF handle
+        mov handle,00h
+        borrarF rutaAux
+        cmp auxWord[0],'Y'
+        je SACARRESPUESTA
+        jmp FINALITO
+
+    SACARRESPUESTA:
+        cleanArr arregloAux
+        pop dx ;resultado final
+        mov ax,dx
+        ConvertirString arregloAux
+        escribirF handleFichero, sizeof arregloAux, arregloAux
+        print numeral 
+        print arregloAux
+    
+    FINALITO:
+        getChar
+
         
 endm

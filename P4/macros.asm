@@ -82,8 +82,8 @@ ConvertirString macro buffer
 	xor dx,dx
 
 	mov dl,0ah
-	test ax,1000000000000000
-	jnz NEGATIVO
+	cmp ax,0
+	jl NEGATIVO
 	jmp Dividir2
 
 	NEGATIVO:

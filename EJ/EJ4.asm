@@ -16,13 +16,19 @@ endm
 
 ConvertirString macro buffer
 	LOCAL Dividir,Dividir2,FinCr3,NEGATIVO,FIN2,FIN
+    push si
+    push cx 
+    push bx
+    push dx
+
 	xor si,si
 	xor cx,cx
 	xor bx,bx
 	xor dx,dx
-	mov dl,0ah
-	test ax,1000000000000000
-	jnz NEGATIVO
+
+	mov bx,0ah
+	cmp ax,0
+	jl NEGATIVO
 	jmp Dividir2
 
 	NEGATIVO:
@@ -32,34 +38,42 @@ ConvertirString macro buffer
 		jmp Dividir2
 
 	Dividir:
-		xor ah,ah
+		xor dx,dx
 	Dividir2:
-		div dl
+		div bx
 		inc cx
-		push ax
-		cmp al,00h
+		push dx
+		cmp ax,00h
 		je FinCr3
 		jmp Dividir
 	FinCr3:
-		pop ax
-		add ah,30h
-		mov buffer[si],ah
+		pop dx
+		add dx,30h
+		mov buffer[si],dx
 		inc si
 		loop FinCr3
-		mov ah,24h
-		mov buffer[si],ah
+		mov dx,24h
+		mov buffer[si],dx
 		inc si
 	FIN:
+        pop dx
+        pop bx
+        pop cx
+        pop si
 endm
 
-CovertirAscii macro numero
+ConvertirAscii macro numero
 	LOCAL INICIO,FIN, NEGATIVO, NEGAT,FINEG
+
+    push si
+    push bx
 	xor ax,ax
 	xor bx,bx
-	xor cx,cx
+
 	mov bx,10	;multiplicador 10
 	xor si,si
 	INICIO:
+	    xor cx,cx
 		mov cl,numero[si] 
 		cmp cl,45
 		je NEGATIVO
@@ -68,7 +82,7 @@ CovertirAscii macro numero
 		cmp cl,57
 		jg FIN
 		inc si
-		sub cl,48	;restar 48 para que me de el numero
+		sub cx,48	;restar 48 para que me de el numero
 		mul bx		;multplicar ax por 10
 		add ax,cx	;sumar lo que tengo mas el siguiente
 		jmp INICIO
@@ -98,6 +112,8 @@ CovertirAscii macro numero
 
 
 	FIN:
+        pop bx
+        pop si
 endm
 
 getChar macro
@@ -127,6 +143,7 @@ buffer db 100 dup('$')
 buffer2 db 100 dup('$')
 buffer3 db 100 dup('$')
 resultado db 100 dup('$')
+res word 50 dup('$')
 .code
 
 	main proc
@@ -136,10 +153,10 @@ resultado db 100 dup('$')
 		Imprimir:
 			getNumero buffer
 			getNumero buffer2
-			CovertirAscii buffer
+			ConvertirAscii buffer
 			mov bx,ax
 			push bx
-			CovertirAscii buffer2
+			ConvertirAscii buffer2
 			pop bx
 
 			add ax,bx
@@ -152,8 +169,10 @@ resultado db 100 dup('$')
 			;xor dx,dx
 			;div bx
 
-			ConvertirString resultado
-			print resultado
+			ConvertirString res
+			;print resultado
+			;mov res,ax
+			print res
 
 
 

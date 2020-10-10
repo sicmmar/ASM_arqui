@@ -9,6 +9,8 @@ include macros.asm
 arregloAux db 70 dup('$'),10,13
 variable word ?
 auxWord word 34 dup('$'),10,13
+resultadosTmp word 10 dup('$')
+resultadosFinales word 200 dup('$')
 bufferLectura db 30000 dup('$')
 bufferEscritura db 200 dup('$')
 resultados db 1000 dup('$')
@@ -19,16 +21,16 @@ rutaAux db 'nuevo.arq',00h,00h
 ruta2 db 'nuev2.arq',00h,00h
 answers db 'resultados.arq',00h,00h
 
-exit db 'exit','$'
-shMedia db 'show media','$'
+exit db 'EXIT','$'
+shMedia db 'SHOW MEDIA','$'
 mediaes db 10,13,'::La media es:                      ','$' ;pos 17
-shModa db 'show moda','$'
+shModa db 'SHOW MODA','$'
 modaes db 10,13,'::La moda es:                      ','$' ;pos 16
-shMediana db 'show mediana','$'
+shMediana db 'SHOW MEDIANA','$'
 medianaes db 10,13,'::La mediana es:                      ','$' ;pos 19
-shMayor db 'show mayor','$'
+shMayor db 'SHOW MAYOR','$'
 mayores db 10,13,'::El n',163,'mero mayor es:                      ','$' ;pos 24
-shMenor db 'show menor','$'
+shMenor db 'SHOW MENOR','$'
 menores db 10,13,'::El n',163,'mero menor es:                      ','$' ;pos 24
 addRes1 db ' add','$'
 addRes2 db ' +','$'

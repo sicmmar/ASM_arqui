@@ -462,7 +462,7 @@ operacionFinal macro
         cleanArr arregloAux
         pop dx 
         mov ax,dx
-        ConvertirString arregloAux
+        ConvertirString resultadosTmp
         escribirF handle, sizeof arregloAux, arregloAux
 
         inc bx 
@@ -508,9 +508,9 @@ operacionFinal macro
         mov dx,ax
         push dx
         mov auxWord[0],'Y'
-        cleanArr arregloAux
-        ConvertirString arregloAux
-        print arregloAux
+        cleanArrWord resultadosTmp
+        ConvertirString resultadosTmp
+        print resultadosTmp
         getChar
         inc bx
         jmp IN3
@@ -523,9 +523,9 @@ operacionFinal macro
         mov dx,ax
         push dx
         mov auxWord[0],'Y'
-        cleanArr arregloAux
-        ConvertirString arregloAux
-        print arregloAux
+        cleanArrWord resultadosTmp
+        ConvertirString resultadosTmp
+        print resultadosTmp
         getChar
         inc bx
         jmp IN3
@@ -538,9 +538,9 @@ operacionFinal macro
         mov dx,ax
         push dx
         mov auxWord[0],'Y'
-        cleanArr arregloAux
-        ConvertirString arregloAux
-        print arregloAux
+        cleanArrWord resultadosTmp
+        ConvertirString resultadosTmp
+        print resultadosTmp
         getChar
         inc bx
         jmp IN3
@@ -555,9 +555,9 @@ operacionFinal macro
         mov dx,ax
         push dx
         mov auxWord[0],'Y'
-        cleanArr arregloAux
-        ConvertirString arregloAux
-        print arregloAux
+        cleanArrWord resultadosTmp
+        ConvertirString resultadosTmp
+        print resultadosTmp
         getChar
         inc bx
         jmp IN3
@@ -574,7 +574,7 @@ operacionFinal macro
         cleanArr arregloAux
         pop dx ;resultado final
         mov ax,dx
-        ConvertirString arregloAux
+        ConvertirString resultadosTmp
         escribirF handleFichero, sizeof arregloAux, arregloAux
         print numeral 
         print arregloAux

@@ -69,6 +69,30 @@ cleanArr macro arr
     POP SI
 endm
 
+cleanArrWord macro arr
+    local CONTINUE, FIN
+    PUSH SI
+    PUSH AX
+    push cx
+
+    xor si,si
+    CONTINUE:
+        cmp si,4
+        je FIN
+        mov ax,'$'
+        mov arr[si],ax
+        inc si
+        jmp CONTINUE
+
+    FIN:
+        mov ax,'$'
+        mov arr[si],ax
+
+    pop cx
+    POP AX
+    POP SI
+endm
+
 ConvertirString macro buffer
 	LOCAL Dividir,Dividir2,FinCr3,NEGATIVO,FIN2,FIN
     push si
@@ -81,7 +105,7 @@ ConvertirString macro buffer
 	xor bx,bx
 	xor dx,dx
 
-	mov dl,0ah
+	mov bx,0ah
 	cmp ax,0
 	jl NEGATIVO
 	jmp Dividir2
@@ -93,22 +117,22 @@ ConvertirString macro buffer
 		jmp Dividir2
 
 	Dividir:
-		xor ah,ah
+		xor dx,dx
 	Dividir2:
-		div dl
+		div bx
 		inc cx
-		push ax
-		cmp al,00h
+		push dx
+		cmp ax,00h
 		je FinCr3
 		jmp Dividir
 	FinCr3:
-		pop ax
-		add ah,30h
-		mov buffer[si],ah
+		pop dx
+		add dx,30h
+		mov buffer[si],dx
 		inc si
 		loop FinCr3
-		mov ah,24h
-		mov buffer[si],ah
+		mov dx,24h
+		mov buffer[si],dx
 		inc si
 	FIN:
         pop dx
@@ -124,10 +148,11 @@ ConvertirAscii macro numero
     push bx
 	xor ax,ax
 	xor bx,bx
-	xor cx,cx
+
 	mov bx,10	;multiplicador 10
 	xor si,si
 	INICIO:
+	    xor cx,cx
 		mov cl,numero[si] 
 		cmp cl,45
 		je NEGATIVO
@@ -136,7 +161,7 @@ ConvertirAscii macro numero
 		cmp cl,57
 		jg FIN
 		inc si
-		sub cl,48	;restar 48 para que me de el numero
+		sub cx,48	;restar 48 para que me de el numero
 		mul bx		;multplicar ax por 10
 		add ax,cx	;sumar lo que tengo mas el siguiente
 		jmp INICIO
@@ -168,6 +193,17 @@ ConvertirAscii macro numero
 	FIN:
         pop bx
         pop si
+endm
+
+colocarRespuesta macro resul
+    local 
+
+    push si
+    push bx
+    
+    pop bx
+    pop si
+
 endm
 
 ;=========================== FICHEROS ===================

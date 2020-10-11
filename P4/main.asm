@@ -9,7 +9,7 @@ include macros.asm
 arregloAux db 70 dup('$'),10,13
 variable word ?
 auxWord word 34 dup('$'),10,13
-resultadosTmp word 10 dup('$')
+resultadosTmp word 34 dup('$'),10,13
 resultadosFinales word 200 dup('$')
 bufferLectura db 30000 dup('$')
 bufferEscritura db 200 dup('$')
@@ -20,6 +20,8 @@ handle dw ?
 rutaAux db 'nuevo.arq',00h,00h
 ruta2 db 'nuev2.arq',00h,00h
 answers db 'resultados.arq',00h,00h
+auxDiv word ?
+auxDiv2 word ?
 
 exit db 'EXIT','$'
 shMedia db 'SHOW MEDIA','$'

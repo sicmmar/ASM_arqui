@@ -144,6 +144,8 @@ buffer2 db 100 dup('$')
 buffer3 db 100 dup('$')
 resultado db 100 dup('$')
 res word 50 dup('$')
+auxDiv word ?
+auxDiv2 word ?
 .code
 
 	main proc
@@ -159,20 +161,57 @@ res word 50 dup('$')
 			ConvertirAscii buffer2
 			pop bx
 
-			add ax,bx
-			;adc ax,bx
+
+			mov cx,ax
+			mov ax,bx
+
+			xor dx,dx
+
+			DIVIDIRS:
+				cmp ax,0
+				jl NEG1
+				cmp cx,0
+				jl NEG2
+
+				div cx
+				jmp FINDIV
+
+			NEG1:
+				mov auxDiv,1b
+				neg ax
+				cmp cx,0
+				jl NEG2
+
+				div cx
+				jmp FINDIV
 			
-			;sub ax,bx
-			;sbb ax,bx
+			NEG2:
+				mov auxDiv2,1b
+				neg cx
 
-			;mul bx
-			;xor dx,dx
-			;div bx
+				div cx
+				jmp FINDIV
 
-			ConvertirString res
-			;print resultado
-			;mov res,ax
-			print res
+			FINDIV:
+				mov cx,auxDiv
+				mov dx,auxDiv2
+				xor cx,dx
+				cmp cx,1b
+				je DIVNEG
+				jmp PRINTDIV
+
+			DIVNEG:
+				mov cx,ax
+				mov dx,2
+				mul dx
+				sub cx,ax
+				mov ax,cx
+
+			PRINTDIV:
+				ConvertirString res
+				;print resultado
+				;mov res,ax
+				print res
 
 
 

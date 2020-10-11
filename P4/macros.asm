@@ -195,6 +195,8 @@ ConvertirAscii macro numero
         pop si
 endm
 
+
+
 colocarRespuesta macro resul
     local 
 

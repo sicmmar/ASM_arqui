@@ -385,7 +385,10 @@ operar macro
 endm
 
 operacionFinal macro
-    local INICIO, FIN, ESCR, BUSCARID, IN2, FIN2, IN3, FIN3, SUMARS, MULTIPLICARS, DIVIDIRS, RESTARS, SACARRESPUESTA, FINALITO
+    local INICIO, FIN, ESCR, BUSCARID, IN2, FIN2, IN3, FIN3, SUMARS, MULTIPLICARS, DIVIDIRS, RESTARS, SACARRESPUESTA, FINALITO, NEG1, NEG2, FINDIV, DIVNEG, PRINTDIV
+
+    mov auxDiv,00h
+    mov auxDiv2,00h
 
     cleanArr arregloAux
     abrirF rutaAux,handle
@@ -463,8 +466,7 @@ operacionFinal macro
         pop dx 
         mov ax,dx
         ConvertirString resultadosTmp
-        escribirF handle, sizeof arregloAux, arregloAux
-
+        escribirF handle, sizeof resultadosTmp, resultadosTmp
         inc bx 
         jmp IN2
 
@@ -484,6 +486,7 @@ operacionFinal macro
         leerF sizeof arregloAux, arregloAux, handle
 
         ConvertirAscii arregloAux
+        
         cmp ax,1042 ;multiplicacion
         je MULTIPLICARS
         cmp ax,1043 ;suma
@@ -547,11 +550,51 @@ operacionFinal macro
     
     DIVIDIRS:
         pop dx
-        mov ax,dx
-        pop dx
         mov cx,dx
-        xor dx,dx
-        idiv cx
+        pop dx
+        mov ax,dx
+
+        cmp ax,0
+        jl NEG1
+        cmp cx,0
+        jl NEG2
+
+        div cx
+        jmp FINDIV
+
+    NEG1:
+        mov auxDiv,1b
+        neg ax
+        cmp cx,0
+        jl NEG2
+
+        div cx
+        jmp FINDIV
+    
+    NEG2:
+        mov auxDiv2,1b
+        neg cx
+
+        div cx
+        jmp FINDIV
+
+    FINDIV:
+        mov cx,auxDiv
+        mov dx,auxDiv2
+        xor cx,dx
+        cmp cx,1b
+        je DIVNEG
+
+        jmp PRINTDIV
+
+    DIVNEG:
+        mov cx,ax
+        mov dx,2
+        mul dx
+        sub cx,ax
+        mov ax,cx
+
+    PRINTDIV:
         mov dx,ax
         push dx
         mov auxWord[0],'Y'
@@ -577,7 +620,7 @@ operacionFinal macro
         ConvertirString resultadosTmp
         escribirF handleFichero, sizeof arregloAux, arregloAux
         print numeral 
-        print arregloAux
+        print resultadosTmp
     
     FINALITO:
         getChar

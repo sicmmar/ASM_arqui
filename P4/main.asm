@@ -6,11 +6,13 @@ include macros.asm
 ;db -> dato byte -> 8 bits
 ;dw -> dato word -> 16 bits
 ;dd -> doble word -> 32 bits
+nombrePadre db 72 dup('$')
 arregloAux db 70 dup('$'),10,13
 variable word ?
 auxWord word 34 dup('$'),10,13
 resultadosTmp word 34 dup('$'),10,13
-resultadosFinales word 200 dup('$')
+resultadosFinales word 100 dup(00h),'$'
+idsFinales word 100 dup(00h),'$'
 bufferLectura db 30000 dup('$')
 bufferEscritura db 200 dup('$')
 resultados db 1000 dup('$')
@@ -19,21 +21,20 @@ handle2 dw ?
 handle dw ?
 rutaAux db 'nuevo.arq',00h,00h
 ruta2 db 'nuev2.arq',00h,00h
-answers db 'resultados.arq',00h,00h
-auxDiv word ?
-auxDiv2 word ?
+answers db 'reporte.json',00h,00h
 
 exit db 'EXIT','$'
-shMedia db 'SHOW MEDIA','$'
-mediaes db 10,13,'::La media es:                      ','$' ;pos 17
-shModa db 'SHOW MODA','$'
-modaes db 10,13,'::La moda es:                      ','$' ;pos 16
-shMediana db 'SHOW MEDIANA','$'
-medianaes db 10,13,'::La mediana es:                      ','$' ;pos 19
-shMayor db 'SHOW MAYOR','$'
-mayores db 10,13,'::El n',163,'mero mayor es:                      ','$' ;pos 24
-shMenor db 'SHOW MENOR','$'
-menores db 10,13,'::El n',163,'mero menor es:                      ','$' ;pos 24
+sh db 'SHOW','$'
+shMedia db 'MEDIA','$'
+mediaes db 10,10,13,'::La media es: ','$' ;pos 17
+shModa db 'MODA','$'
+modaes db 10,10,13,'::La moda es: ','$' ;pos 16
+shMediana db 'MEDIANA','$'
+medianaes db 10,10,13,'::La mediana es: ','$' ;pos 19
+shMayor db 'MAYOR','$'
+mayores db 10,10,13,'::El n',163,'mero mayor es:','$' ;pos 24
+shMenor db 'MENOR','$'
+menores db 10,10,13,'::El n',163,'mero menor es:','$' ;pos 24
 addRes1 db ' add','$'
 addRes2 db ' +','$'
 subRes1 db ' sub','$'
@@ -44,6 +45,11 @@ divRes1 db ' div','$'
 divRes2 db ' /','$'
 numeral db ' #','$'
 idRes db ' id','$'
+aprox db ' aproximadamente','$'
+elresid db 10,10,13,'El resultado de ','$'
+esRes db ' es: ','$'
+noexisteMsj db 'La operaci',162,'n que ingresaste no existe','$'
+repGenerado db 10,10,13,32,173,173,' Reporte Generado !!','$'
 
 
 encab db 10,10,13,'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA',10,13,'FACULTAD DE INGENIERIA',10,13,'CIENCIAS Y SISTEMAS',10,13,'ARQUITECTURA DE COMPUTADORES Y ENSAMBLADORES 1','$'
@@ -64,7 +70,16 @@ errorComando db ' ',173,173,' Error, ingresa un comando v',160,'lido !!','$'
 ingreseRuta db 10,13, '::Ingresa nombre archivo a cargar  ','$'
 
 ;archivo - reporte
-rep1 db '{',10,13,' '
+rep1 db '{',10,13,9,'"reporte":{',10,13,9,9,'"alumno":{',10,13,9,9,9,'"nombre":"Asuncion Mariana Sic Sor",',10,13,9,9,9,'"carnet":201504051,',10,13,9,9,9,'"seccion":"A",'
+rep2 db 10,13,9,9,9,'"curso":"Arquitectura de Computadores y Ensambladores 1"',10,13,9,9,'},',10,13,9,9,'"fecha":{',10,13,9,9,9,'"dia":'
+fecha db '  ,',10,13,9,9,9,'"mes":  ,',10,13,9,9,9,'"a',126,'o":20  ',10,13,9,9,'},',10,13,9,9,'"hora":{',10,13,9,9,9,'"hora":'
+hora db '  ,',10,13,9,9,9,'"minutos":  ,',10,13,9,9,9,'"segundos":  ',10,13,9,9,'},',10,13,9,9,'"resultados":{',10,13,9,9,9,'"media":'
+medRep db ',',10,13,9,9,9,'"mediana":'
+modRep db ',',10,13,9,9,9,'"moda":'
+menRep db ',',10,13,9,9,9,'"menor":'
+mayRep db ',',10,13,9,9,9,'"mayor":'
+op1 db ',',10,13,9,9,'"'
+finRep db 10,13,9,9,']',10,13,9,'}',10,13,'}'
 saveSuccess db 10,13, ' ',173,173,' Archivo guardado con ',130,'xito !!','$'
 loadSuccess db 10,13, ' ',173,173,' Archivo cargado con ',130,'xito !!','$'
 
@@ -137,17 +152,14 @@ main proc
         cerrarF handle2
         mov handle2,00h
 
-        crearF answers,handleFichero
         abrirF ruta2,handle2
         crearF rutaAux,handle
         leerF sizeof arregloAux,arregloAux,handle2
-        escribirF handleFichero,sizeof arregloAux,arregloAux
+        pasarPadre
         operar
         cerrarF handle2
-        cerrarF handleFichero
         borrarF ruta2
         mov handle2,00h
-        mov handleFichero,00h
 
         print loadSuccess
         getChar
@@ -160,36 +172,20 @@ main proc
         cleanArr arregloAux
         ObtenerTexto arregloAux
 
-        tamanoArr exit
         comparar arregloAux,exit
         cmp ah,1b
         je EXITCONSOLA
-        tamanoArr shMedia
-        comparar arregloAux,shMedia
+
+        comparar arregloAux,sh
         cmp ah,1b
-        je MEDIA
-        tamanoArr shModa
-        comparar arregloAux,shModa
-        cmp ah,1b
-        je MODA
-        tamanoArr shMediana
-        comparar arregloAux,shMediana
-        cmp ah,1b
-        je MEDIANA
-        tamanoArr shMayor
-        comparar arregloAux,shMayor
-        cmp ah,1b
-        je MAYOR
-        tamanoArr shMenor
-        comparar arregloAux,shMenor
-        cmp ah,1b
-        je MENOR
+        je SHOWCMD
 
         jne ErrorCmd
         jmp CONSOLA
     
     MEDIA:
         print mediaes
+        ;getMedia
         jmp CONSOLA
 
     MODA:
@@ -210,8 +206,49 @@ main proc
     
     EXITCONSOLA:
         jmp MenuPrincipal
+    
+    SHOWCMD:
 
+        cleanArr arregloAux
+        ObtenerTexto arregloAux
 
+        comparar arregloAux,shMedia
+        cmp ah,1b
+        je MEDIA
+        comparar arregloAux,shModa
+        cmp ah,1b
+        je MODA
+        comparar arregloAux,shMediana
+        cmp ah,1b
+        je MEDIANA
+        comparar arregloAux,shMayor
+        cmp ah,1b
+        je MAYOR
+        comparar arregloAux,shMenor
+        cmp ah,1b
+        je MENOR
+        comparar arregloAux,nombrePadre
+        cmp ah,1b
+        je REPORTEFINAL
+
+        print elresid
+        print arregloAux
+        print esRes
+        ConvertirSumaAscii arregloAux
+        add ax,32
+        searchID 
+
+        mov ax,dx
+        ConvertirString resultadosTmp
+        print resultadosTmp
+
+        jmp CONSOLA
+    
+    REPORTEFINAL:
+        print repGenerado
+        generarReporte
+        jmp CONSOLA
+    
 	SALIR:
 		print msjOpc3
 		mov ah,4ch

@@ -1,5 +1,6 @@
+
 ; FECHA Y HORA
-escribirFecha macro handle, fecha, hora
+escribirFecha macro
     ;;;;;;;;;; FECHA
     MOV AH,2AH    ; To get System Date
     INT 21H
@@ -7,8 +8,8 @@ escribirFecha macro handle, fecha, hora
     AAM
     MOV BX,AX
     CALL DISP
-    mov fecha[23],dl
-    mov fecha[24],al
+    mov fecha[0],dl
+    mov fecha[1],al
 
     MOV AH,2AH    ; To get System Date
     INT 21H
@@ -16,8 +17,8 @@ escribirFecha macro handle, fecha, hora
     AAM
     MOV BX,AX
     CALL DISP
-    mov fecha[26],dl
-    mov fecha[27],al
+    mov fecha[14],dl
+    mov fecha[15],al
 
     MOV AH,2AH    ; To get System Date
     INT 21H
@@ -26,8 +27,8 @@ escribirFecha macro handle, fecha, hora
     AAM
     MOV BX,AX
     CALL DISP
-    mov fecha[31],dl
-    mov fecha[32],al
+    mov fecha[30],dl
+    mov fecha[31],al
 
     escribirF handle, sizeof fecha, fecha
 
@@ -38,8 +39,8 @@ escribirFecha macro handle, fecha, hora
     AAM
     MOV BX,AX
     CALL DISP
-    mov hora[26],dl
-    mov hora[27],al
+    mov hora[0],dl
+    mov hora[1],al
 
     MOV AH,2CH    ; To get System Time
     INT 21H
@@ -47,8 +48,8 @@ escribirFecha macro handle, fecha, hora
     AAM
     MOV BX,AX
     CALL DISP
-    mov hora[29],dl
-    mov hora[30],al
+    mov hora[18],dl
+    mov hora[19],al
 
     MOV AH,2CH    ; To get System Time
     INT 21H
@@ -56,60 +57,10 @@ escribirFecha macro handle, fecha, hora
     AAM
     MOV BX,AX
     CALL DISP
-    mov hora[32],dl
-    mov hora[33],al
-endm
+    mov hora[37],dl
+    mov hora[38],al
 
-;;;;;;;;;; ARCHIVO EXTENSION .ARQ
-guardarArq macro posicion
-    local FIRST, LAST
-    xor si,si
-    xor di,di
-    mov cx,8
-    FIRST:
-        mov al,posicion[si]
-        mov filaArch[di],al
-        inc si
-        inc di
-        inc di
-        loop FIRST
-    
-    escribirF handle2, sizeof filaArch, filaArch
-
-    xor di,di
-    mov cx,8
-    LAST:
-        mov filaArch[di],32
-        inc di
-        inc di
-        loop LAST
-
-endm
-
-cargaFichero macro posicion
-    local LAST, FIRST
-
-    xor di,di
-    mov cx,8
-    LAST:
-        mov filaArch[di],32
-        inc di
-        inc di
-        loop LAST
-
-    leerF sizeof filaArch, filaArch, handle2
-
-    xor si,si
-    xor di,di
-    mov cx,8
-    FIRST:
-        mov al,filaArch[di]
-        mov posicion[si],al
-        inc si
-        inc di
-        inc di
-        loop FIRST
-
+    escribirF handle, sizeof hora, hora
 endm
 
 ; =============== LEER JSON ====================
@@ -361,7 +312,9 @@ operar macro
         cmp arregloAux[1],'/'
         je ESCR
 
-        escribirF handleFichero,sizeof arregloAux,arregloAux
+        ConvertirSumaAscii arregloAux
+        colocarRespuesta idsFinales
+        
         cerrarF handle
         mov handle,00h
         ;aqui va la magia de la operacion :o 
@@ -385,10 +338,7 @@ operar macro
 endm
 
 operacionFinal macro
-    local INICIO, FIN, ESCR, BUSCARID, IN2, FIN2, IN3, FIN3, SUMARS, MULTIPLICARS, DIVIDIRS, RESTARS, SACARRESPUESTA, FINALITO, NEG1, NEG2, FINDIV, DIVNEG, PRINTDIV
-
-    mov auxDiv,00h
-    mov auxDiv2,00h
+    local INICIO, FIN, ESCR, BUSCARID, IN2, FIN2, IN3, FIN3, SUMARS, MULTIPLICARS, DIVIDIRS, RESTARS, SACARRESPUESTA, FINALITO
 
     cleanArr arregloAux
     abrirF rutaAux,handle
@@ -443,6 +393,9 @@ operacionFinal macro
     BUSCARID:
         xor dx,dx
         mov dl,arregloAux[0]
+        ConvertirSumaAscii arregloAux ;en ax esta la suma de asciis del id, hay que restarle 1
+        sub ax,1
+        searchID
         push dx
         inc bx
         jmp INICIO
@@ -462,7 +415,6 @@ operacionFinal macro
         cmp bx,variable
         jge FIN2
 
-        cleanArr arregloAux
         pop dx 
         mov ax,dx
         ConvertirString resultadosTmp
@@ -486,7 +438,6 @@ operacionFinal macro
         leerF sizeof arregloAux, arregloAux, handle
 
         ConvertirAscii arregloAux
-        
         cmp ax,1042 ;multiplicacion
         je MULTIPLICARS
         cmp ax,1043 ;suma
@@ -511,10 +462,6 @@ operacionFinal macro
         mov dx,ax
         push dx
         mov auxWord[0],'Y'
-        cleanArrWord resultadosTmp
-        ConvertirString resultadosTmp
-        print resultadosTmp
-        getChar
         inc bx
         jmp IN3
     
@@ -526,10 +473,6 @@ operacionFinal macro
         mov dx,ax
         push dx
         mov auxWord[0],'Y'
-        cleanArrWord resultadosTmp
-        ConvertirString resultadosTmp
-        print resultadosTmp
-        getChar
         inc bx
         jmp IN3
 
@@ -541,67 +484,19 @@ operacionFinal macro
         mov dx,ax
         push dx
         mov auxWord[0],'Y'
-        cleanArrWord resultadosTmp
-        ConvertirString resultadosTmp
-        print resultadosTmp
-        getChar
         inc bx
         jmp IN3
     
     DIVIDIRS:
         pop dx
-        mov cx,dx
-        pop dx
         mov ax,dx
-
-        cmp ax,0
-        jl NEG1
-        cmp cx,0
-        jl NEG2
-
-        div cx
-        jmp FINDIV
-
-    NEG1:
-        mov auxDiv,1b
-        neg ax
-        cmp cx,0
-        jl NEG2
-
-        div cx
-        jmp FINDIV
-    
-    NEG2:
-        mov auxDiv2,1b
-        neg cx
-
-        div cx
-        jmp FINDIV
-
-    FINDIV:
-        mov cx,auxDiv
-        mov dx,auxDiv2
-        xor cx,dx
-        cmp cx,1b
-        je DIVNEG
-
-        jmp PRINTDIV
-
-    DIVNEG:
-        mov cx,ax
-        mov dx,2
-        mul dx
-        sub cx,ax
-        mov ax,cx
-
-    PRINTDIV:
+        pop dx
+        mov cx,dx
+        xor dx,dx
+        idiv cx
         mov dx,ax
         push dx
         mov auxWord[0],'Y'
-        cleanArrWord resultadosTmp
-        ConvertirString resultadosTmp
-        print resultadosTmp
-        getChar
         inc bx
         jmp IN3
 
@@ -614,16 +509,70 @@ operacionFinal macro
         jmp FINALITO
 
     SACARRESPUESTA:
-        cleanArr arregloAux
         pop dx ;resultado final
         mov ax,dx
-        ConvertirString resultadosTmp
-        escribirF handleFichero, sizeof arregloAux, arregloAux
-        print numeral 
-        print resultadosTmp
+        colocarRespuesta resultadosFinales
+        ;ConvertirString resultadosTmp
+        ;print resultadosTmp
+        ;getChar
+
     
     FINALITO:
-        getChar
+        ;getChar
 
         
+endm
+
+; ================= REPORTE FINAL ===============
+generarReporte macro
+    mov handle,00h
+    crearF answers,handle
+    escribirF handle, sizeof rep1, rep1
+    escribirF handle, sizeof rep2, rep2
+    escribirFecha
+    escribirF handle, sizeof medRep, medRep
+    escribirF handle, sizeof modRep, modRep
+    escribirF handle, sizeof menRep, menRep
+    escribirF handle, sizeof mayRep, mayRep
+
+    escribirF handle, sizeof finRep, finRep
+    cerrarF handle
+    mov handle,00h
+endm
+
+;;; ================ estadisticos ==================
+getMedia macro
+    local INICIO, FIN, NEGATIVO, FINSI
+
+    xor si,si
+    xor ax,ax
+    xor cx,cx
+
+    INICIO:
+        mov bx,resultadosFinales[si]
+        cmp bx,00h
+        je FIN
+
+        add ax,bx
+
+        inc si
+        inc si
+        inc cx
+        jmp INICIO
+
+    FIN:
+        cmp ax,0
+        jl NEGATIVO
+
+        jmp FINSI
+
+    NEGATIVO:
+        neg ax
+    
+    FINSI:
+        idiv cx
+        ConvertirString resultadosTmp
+        print resultadosTmp
+        getChar
+
 endm

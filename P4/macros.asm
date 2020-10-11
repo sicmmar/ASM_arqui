@@ -14,7 +14,7 @@ ObtenerTexto macro buffer
         xor si,si
         CONTINUE:
             getChar
-            cmp al,0dh
+            cmp al,32
             je FIN
             mov buffer[si],al
             inc si
@@ -99,6 +99,7 @@ ConvertirString macro buffer
     push cx 
     push bx
     push dx
+    push ax
 
 	xor si,si
 	xor cx,cx
@@ -135,6 +136,7 @@ ConvertirString macro buffer
 		mov buffer[si],dx
 		inc si
 	FIN:
+        pop ax
         pop dx
         pop bx
         pop cx
@@ -195,17 +197,80 @@ ConvertirAscii macro numero
         pop si
 endm
 
+ConvertirSumaAscii macro numero
+	LOCAL INICIO,FIN
 
+    push si
+    xor ax,ax
 
-colocarRespuesta macro resul
-    local 
+	xor si,si
+	INICIO:
+	    xor cx,cx
+		mov cl,numero[si] 
+		cmp cl,'$'
+		je FIN
+
+        add ax,cx
+		inc si
+		jmp INICIO
+
+	FIN:
+        pop si
+endm
+
+colocarRespuesta macro arreglo
+    local INICIO, FIN
 
     push si
     push bx
+    xor si,si
+
+    INICIO:
+        mov bx,arreglo[si]
+        cmp bx,00h
+        je FIN
+
+        inc si
+        inc si
+        jmp INICIO
+
+    FIN:
+        mov arreglo[si],ax
     
     pop bx
     pop si
 
+endm
+
+searchID macro
+    ;lo que devuelve el id, se coloca en dx
+    local INICIO, NOENCONTRADO, ENCONTRADO, FIN
+    push si
+    push bx
+    xor si,si
+
+    INICIO:
+        mov bx,idsFinales[si]
+        cmp bx,00h
+        je NOENCONTRADO
+        cmp bx,ax
+        je ENCONTRADO
+
+        inc si
+        inc si
+        jmp INICIO
+    
+    NOENCONTRADO:
+        mov dx,0
+        jmp FIN
+    
+    ENCONTRADO:
+        mov dx,resultadosFinales[si]
+
+    FIN:
+
+    pop bx 
+    pop si
 endm
 
 ;=========================== FICHEROS ===================
@@ -333,4 +398,29 @@ tamanoArr macro actual
         mov cx,si
 
     pop si
+endm
+
+pasarPadre macro
+    local INICIO,FIN
+    push si
+    push dx
+
+    xor si,si
+    inc si
+
+    INICIO:
+        cmp si,65
+        je FIN
+        
+        mov dl,arregloAux[si]
+        dec si
+        mov nombrePadre[si],dl
+        inc si
+        inc si
+        jmp INICIO
+    
+    FIN:
+        mov nombrePadre[si],'$'
+        pop dx
+        pop si
 endm

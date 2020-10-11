@@ -358,6 +358,27 @@ borrarF macro ruta
     int 21h
 endm
 
+escribirA macro arreglo, handle
+    local INICIO, FIN
+    
+    push si
+    xor si,si
+
+    INICIO:
+        cmp arreglo[si],'$'
+        je FIN
+
+        inc si
+        jmp INICIO
+
+    FIN:
+        mov cx,si
+        escribirF handle, cx, arreglo
+
+
+    pop si
+endm
+
 ;==================== COMPARACIONES ========================
 comparar macro actual, molde
     local INICIO, FIN

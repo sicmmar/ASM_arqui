@@ -1,24 +1,80 @@
 {
-	"reporte":{
-		"alumno":{
-			"nombre":"Asuncion Mariana Sic Sor",
-			"carnet":201504051,
-			"seccion":"A",
-			"curso":"Arquitectura de Computadores y Ensambladores 1"
-		},
-		"fecha":{
-			"dia":10,
-			"mes":10,
-			"a~o":2020
-		},
-		"hora":{
-			"hora":23,
-			"minutos":31,
-			"segundos":20
-		},
-		"resultados":{
-			"media":,
-			"mediana":,
-			"moda":,
-			"menor":,
-			"mayor":
+
+	"reporte":{
+
+		"alumno":{
+
+			"nombre":"Asuncion Mariana Sic Sor",
+
+			"carnet":201504051,
+
+			"seccion":"A",
+
+			"curso":"Arquitectura de Computadores y Ensambladores 1"
+
+		},
+
+		"fecha":{
+
+			"dia":11,
+
+			"mes":10,
+
+			"a~o":2020
+
+		},
+
+		"hora":{
+
+			"hora":14,
+
+			"minutos":08,
+
+			"segundos":56
+
+		},
+
+		"resultados":{
+
+			"media":,
+
+			"mediana":,
+
+			"moda":,
+
+			"menor":,
+
+			"mayor":51
+		},
+
+		"operaciones":[
+
+			{
+
+				"":92
+
+			},
+
+			{
+
+				"":98
+
+			},
+
+			{
+
+				"":-30
+
+			},
+
+			{
+
+				"":-1470
+
+			}
+
+		]
+
+	}
+
+}

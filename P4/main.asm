@@ -32,9 +32,9 @@ modaes db 10,10,13,'::La moda es: ','$' ;pos 16
 shMediana db 'MEDIANA','$'
 medianaes db 10,10,13,'::La mediana es: ','$' ;pos 19
 shMayor db 'MAYOR','$'
-mayores db 10,10,13,'::El n',163,'mero mayor es:','$' ;pos 24
+mayores db 10,10,13,'::El n',163,'mero mayor es: ','$' ;pos 24
 shMenor db 'MENOR','$'
-menores db 10,10,13,'::El n',163,'mero menor es:','$' ;pos 24
+menores db 10,10,13,'::El n',163,'mero menor es: ','$' ;pos 24
 addRes1 db ' add','$'
 addRes2 db ' +','$'
 subRes1 db ' sub','$'
@@ -78,7 +78,12 @@ medRep db ',',10,13,9,9,9,'"mediana":'
 modRep db ',',10,13,9,9,9,'"moda":'
 menRep db ',',10,13,9,9,9,'"menor":'
 mayRep db ',',10,13,9,9,9,'"mayor":'
-op1 db ',',10,13,9,9,'"'
+op1 db 10,13,9,9,'},',10,13,9,9,'"'
+op2 db '":['
+inOperaciones db 10,13,9,9,9,'{',10,13,9,9,9,9,'"'
+middleOperaciones db '":'
+finOperaciones db 10,13,9,9,9,'}'
+coma db ','
 finRep db 10,13,9,9,']',10,13,9,'}',10,13,'}'
 saveSuccess db 10,13, ' ',173,173,' Archivo guardado con ',130,'xito !!','$'
 loadSuccess db 10,13, ' ',173,173,' Archivo cargado con ',130,'xito !!','$'
@@ -198,10 +203,12 @@ main proc
 
     MAYOR:
         print mayores
+        getMayor
         jmp CONSOLA
 
     MENOR:
         print menores
+        getMenor
         jmp CONSOLA
     
     EXITCONSOLA:

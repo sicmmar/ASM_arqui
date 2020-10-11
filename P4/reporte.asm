@@ -534,10 +534,53 @@ generarReporte macro
     escribirF handle, sizeof modRep, modRep
     escribirF handle, sizeof menRep, menRep
     escribirF handle, sizeof mayRep, mayRep
+    escribirF handle, sizeof op1, op1
+    escribirA nombrePadre, handle 
+    escribirF handle, sizeof op2, op2
+
+    getOperaciones
 
     escribirF handle, sizeof finRep, finRep
     cerrarF handle
     mov handle,00h
+endm
+
+getOperaciones macro
+    local INICIO, FIN, ESCRIBCOMA
+
+    xor si,si
+    xor di,di
+
+    INICIO:
+        mov ax,resultadosFinales[si]
+        cmp ax,00h
+        je FIN
+
+        ConvertirString resultadosTmp
+
+        cmp si,0
+        jg ESCRIBCOMA
+    
+    NORMAL:
+        escribirF handle, sizeof inOperaciones, inOperaciones
+        ; agarrar id de las operaciones
+        escribirF handle, sizeof middleOperaciones, middleOperaciones
+        escribirA resultadosTmp, handle
+        inc si
+        inc si
+        jmp INICIO
+
+
+    ESCRIBCOMA:
+        escribirF handle, sizeof finOperaciones, finOperaciones
+        escribirF handle, sizeof coma, coma
+        jmp NORMAL
+
+    FIN:
+        escribirF handle, sizeof finOperaciones, finOperaciones
+        
+
+
 endm
 
 ;;; ================ estadisticos ==================
@@ -574,5 +617,69 @@ getMedia macro
         ConvertirString resultadosTmp
         print resultadosTmp
         getChar
+
+endm
+
+getMayor macro
+    local INICIO, FIN, ESMAYOR
+
+    xor si,si
+    xor ax,ax
+    xor cx,cx
+
+    INICIO:
+        mov bx,resultadosFinales[si]
+        cmp bx,00h
+        je FIN
+
+        cmp bx,ax
+        jg ESMAYOR
+
+        inc si
+        inc si
+        jmp INICIO
+
+    ESMAYOR:
+        mov ax,bx
+        inc si
+        inc si
+        jmp INICIO
+
+
+    FIN:
+        ConvertirString resultadosTmp
+        print resultadosTmp
+
+endm
+
+getMenor macro
+    local INICIO, FIN, ESMAYOR
+
+    xor si,si
+    xor ax,ax
+    xor cx,cx
+
+    INICIO:
+        mov bx,resultadosFinales[si]
+        cmp bx,00h
+        je FIN
+
+        cmp bx,ax
+        jl ESMAYOR
+
+        inc si
+        inc si
+        jmp INICIO
+
+    ESMAYOR:
+        mov ax,bx
+        inc si
+        inc si
+        jmp INICIO
+
+
+    FIN:
+        ConvertirString resultadosTmp
+        print resultadosTmp
 
 endm

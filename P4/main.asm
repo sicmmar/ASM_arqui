@@ -8,11 +8,13 @@ include macros.asm
 ;dd -> doble word -> 32 bits
 nombrePadre db 72 dup('$')
 arregloAux db 70 dup('$'),10,13
+ordenados word 100 dup(00h),'$'
 variable word ?
 auxWord word 34 dup('$'),10,13
 resultadosTmp word 34 dup('$'),10,13
 resultadosFinales word 100 dup(00h),'$'
 idsFinales word 100 dup(00h),'$'
+nombresIdentificadores db 3000 dup('$')
 bufferLectura db 30000 dup('$')
 bufferEscritura db 200 dup('$')
 resultados db 1000 dup('$')
@@ -109,6 +111,9 @@ main proc
 
 	
 	CARGA:
+        cleanArrWord resultadosFinales
+        cleanArrWord idsFinales
+        cleanArr nombresIdentificadores
         mov handle2,00h
 		print msjOpc1
         print ingreseRuta
@@ -190,7 +195,8 @@ main proc
     
     MEDIA:
         print mediaes
-        ;getMedia
+        getMedia
+        print resultadosTmp
         jmp CONSOLA
 
     MODA:
@@ -199,16 +205,19 @@ main proc
     
     MEDIANA:
         print medianaes
+        getMediana
         jmp CONSOLA
 
     MAYOR:
         print mayores
         getMayor
+        print resultadosTmp
         jmp CONSOLA
 
     MENOR:
         print menores
         getMenor
+        print resultadosTmp
         jmp CONSOLA
     
     EXITCONSOLA:
@@ -245,10 +254,17 @@ main proc
         add ax,32
         searchID 
 
+        cmp dx,0
+        je NOEXISTE
+
         mov ax,dx
         ConvertirString resultadosTmp
         print resultadosTmp
 
+        jmp CONSOLA
+    
+    NOEXISTE:
+        print noexisteMsj
         jmp CONSOLA
     
     REPORTEFINAL:

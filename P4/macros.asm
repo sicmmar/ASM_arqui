@@ -77,15 +77,16 @@ cleanArrWord macro arr
 
     xor si,si
     CONTINUE:
-        cmp si,4
+        cmp si,50
         je FIN
-        mov ax,'$'
+        mov ax,00h
         mov arr[si],ax
+        inc si
         inc si
         jmp CONTINUE
 
     FIN:
-        mov ax,'$'
+        mov ax,00h
         mov arr[si],ax
 
     pop cx
@@ -270,6 +271,43 @@ searchID macro
     FIN:
 
     pop bx 
+    pop si
+endm
+
+colocarIdentificador macro arreglo
+    local INICIO, FIN, FIN2
+    push si
+    push ax
+    push di
+
+    xor si,si
+    xor ax,ax
+    xor di,di
+    
+    INICIO:
+        mov  al,nombresIdentificadores[si]
+        cmp al,'$'
+        je FIN
+
+        inc si
+        jmp INICIO
+
+    FIN:
+        mov ah,arreglo[di]
+        cmp ah,'$'
+        je FIN2
+    
+        mov nombresIdentificadores[si],ah
+
+        inc di
+        inc si
+        jmp FIN
+    
+    FIN2:
+        mov nombresIdentificadores[si],186 ;signo rarito
+
+    pop di
+    pop ax
     pop si
 endm
 

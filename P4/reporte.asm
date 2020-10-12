@@ -312,6 +312,7 @@ operar macro
         cmp arregloAux[1],'/'
         je ESCR
 
+        colocarIdentificador arregloAux
         ConvertirSumaAscii arregloAux
         colocarRespuesta idsFinales
         
@@ -530,10 +531,26 @@ generarReporte macro
     escribirF handle, sizeof rep1, rep1
     escribirF handle, sizeof rep2, rep2
     escribirFecha
+
+    getMedia
+    escribirA resultadosTmp, handle
+
     escribirF handle, sizeof medRep, medRep
+    getMediana
+    escribirA resultadosTmp, handle
+
     escribirF handle, sizeof modRep, modRep
+    getModa
+    escribirA resultadosTmp, handle
+
     escribirF handle, sizeof menRep, menRep
+    getMenor
+    escribirA resultadosTmp, handle
+
     escribirF handle, sizeof mayRep, mayRep
+    getMayor
+    escribirA resultadosTmp, handle
+
     escribirF handle, sizeof op1, op1
     escribirA nombrePadre, handle 
     escribirF handle, sizeof op2, op2
@@ -545,11 +562,53 @@ generarReporte macro
     mov handle,00h
 endm
 
+agarrarOperaciones macro
+    local INICIO, FIN, ENCONTRADO
+
+    push si
+    push di
+
+    xor si,si
+    xor di,di
+    ;en dx esta "la posicion del arreglo para el identificador"
+    xor cx,cx
+    inc cx
+    cleanArr arregloAux
+
+    INICIO:
+        mov bl,nombresIdentificadores[si]
+        cmp bl,186
+        je ENCONTRADO
+
+        mov arregloAux[di],bl
+        inc si
+        inc di
+        jmp INICIO
+    
+    ENCONTRADO:
+        mov arregloAux[di],'$'
+        cmp cx,dx
+        je FIN
+
+        cleanArr arregloAux
+        xor di,di
+        inc si
+        inc cx
+        jmp INICIO
+    
+    FIN:
+        escribirA arregloAux, handle
+        pop di
+        pop si
+
+endm
+
 getOperaciones macro
     local INICIO, FIN, ESCRIBCOMA
 
     xor si,si
     xor di,di
+    xor dx,dx
 
     INICIO:
         mov ax,resultadosFinales[si]
@@ -562,8 +621,9 @@ getOperaciones macro
         jg ESCRIBCOMA
     
     NORMAL:
+        inc dx
         escribirF handle, sizeof inOperaciones, inOperaciones
-        ; agarrar id de las operaciones
+        agarrarOperaciones; agarrar id de las operaciones
         escribirF handle, sizeof middleOperaciones, middleOperaciones
         escribirA resultadosTmp, handle
         inc si
@@ -613,10 +673,9 @@ getMedia macro
         neg ax
     
     FINSI:
+        xor dx,dx
         idiv cx
         ConvertirString resultadosTmp
-        print resultadosTmp
-        getChar
 
 endm
 
@@ -648,7 +707,6 @@ getMayor macro
 
     FIN:
         ConvertirString resultadosTmp
-        print resultadosTmp
 
 endm
 
@@ -680,6 +738,35 @@ getMenor macro
 
     FIN:
         ConvertirString resultadosTmp
-        print resultadosTmp
 
+endm
+
+getMediana macro
+    local INICIO, FIN, INICIO2, FIN2, ESMENOR
+
+    xor si,si
+    xor ax,ax
+    xor cx,cx
+
+    INICIO:
+        mov ax,0
+
+
+    FIN:
+        ConvertirString resultadosTmp
+endm
+
+getModa macro
+    local INICIO, FIN, INICIO2, FIN2, ESMENOR
+
+    xor si,si
+    xor ax,ax
+    xor cx,cx
+
+    INICIO:
+        mov ax,0
+
+
+    FIN:
+        ConvertirString resultadosTmp
 endm

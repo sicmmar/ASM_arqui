@@ -459,6 +459,7 @@ operacionFinal macro
         mov ax,dx
         pop dx
         mov cx,dx
+        xor dx,dx
         imul cx
         mov dx,ax
         push dx

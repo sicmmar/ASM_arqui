@@ -7,34 +7,34 @@
 			"curso":"Arquitectura de Computadores y Ensambladores 1"
 		},
 		"fecha":{
-			"dia":11,
+			"dia":12,
 			"mes":10,
 			"a~o":2020
 		},
 		"hora":{
-			"hora":21,
-			"minutos":03,
-			"segundos":51
+			"hora":19,
+			"minutos":58,
+			"segundos":49
 		},
 		"resultados":{
-			"media":675,
+			"media":6583,
 			"mediana":0,
 			"moda":0,
-			"menor":-3090,
-			"mayor":212
+			"menor":-30,
+			"mayor":16466
 		},
 		"padre":[
 			{
-				" operacion1":212
+				" hijo1":92
 			},
 			{
-				" operacion2":206
+				" hijo2":16466
 			},
 			{
-				" operacion3":-30
+				" hijo3":-30
 			},
 			{
-				" operacion4":-3090
+				" hijo4":9804
 			}
 		]
 	}

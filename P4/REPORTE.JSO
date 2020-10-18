@@ -12,29 +12,29 @@
 			"a~o":2020
 		},
 		"hora":{
-			"hora":19,
-			"minutos":58,
-			"segundos":49
+			"hora":22,
+			"minutos":02,
+			"segundos":14
 		},
 		"resultados":{
-			"media":6583,
+			"media":35,
 			"mediana":0,
 			"moda":0,
 			"menor":-30,
-			"mayor":16466
+			"mayor":92
 		},
 		"padre":[
 			{
 				" hijo1":92
 			},
 			{
-				" hijo2":16466
+				" hijo2":82
 			},
 			{
 				" hijo3":-30
 			},
 			{
-				" hijo4":9804
+				" hijo4":-2
 			}
 		]
 	}

@@ -7,6 +7,7 @@ include macros.asm
 ;dw -> dato word -> 16 bits
 ;dd -> doble word -> 32 bits
 nombrePadre db 72 dup('$')
+arregloAux2 db 70 dup('$'),10,13
 arregloAux db 70 dup('$'),10,13
 usuarioActual db 70 dup('$'),10,13
 ordenados word 100 dup(00h),'$'
@@ -15,6 +16,7 @@ auxWord word 34 dup('$'),10,13
 resultadosTmp word 34 dup('$'),10,13
 contrasenas word 100 dup(00h),'$'
 usuarios word 100 dup(00h),'$'
+punteos word 100 dup(00h),'$'
 nombresIdentificadores db 3000 dup('$')
 bufferLectura db 30000 dup('$')
 bufferEscritura db 200 dup('$')
@@ -25,6 +27,8 @@ handle dw ?
 rutaAux db 'nuevo.arq',00h,00h
 ruta2 db 'nuev2.arq',00h,00h
 answers db 'users.rep',00h,00h
+puntosRuta db 'puntos.rep',00h,00h
+tiempoRuta db 'tiempo.rep',00h,00h
 
 exit db 'EXIT','$'
 noexisteMsj db 'La operaci',162,'n que ingresaste no existe','$'
@@ -145,6 +149,7 @@ main proc
     
     TOP10PUNTOS:
         print msjOpc4
+        t10Puntos 
         jmp MenuPrincipal
 
     TOP10TIEMPO:

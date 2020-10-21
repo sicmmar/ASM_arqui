@@ -1,4 +1,38 @@
-;include reporte.asm
+include video.asm
+
+ModoVideo macro
+    mov ah,00h
+    mov al,13h
+    int 10h
+    mov ax, 0A000h
+    mov ds, ax  ; DS = A000h (memoria de graficos).
+endm
+
+ModoTexto macro
+    mov ah,00h
+    mov al,03h
+    int 10h
+    mov dx,@data
+    mov ds,dx
+endm
+
+verTeclaPresionada macro
+    local FIN
+
+    mov ah,01
+    int 16h
+    jz FIN
+    
+    getKey
+
+    FIN:
+endm
+
+getKey macro
+    mov ah,00
+    int 16h
+endm
+
 
 print macro cadena
     mov ah,09h

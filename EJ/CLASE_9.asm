@@ -93,6 +93,23 @@ jne Cuarta
 
 endm
 
+verTeclaPresionada macro
+    local FIN
+
+    mov ah,01
+    int 16h
+    jz FIN
+    
+    getKey
+
+    FIN:
+endm
+
+getKey macro
+    mov ah,00
+    int 16h
+endm
+
 ;------------------------
 ;
 ;
@@ -123,23 +140,23 @@ pop ax
 endm
 
 pintarPelota macro pos, color
-push dx
-mov di,pos
-mov dl,color
+	push dx
+	mov di,pos
+	mov dl,color
 
-mov [di],dl
-mov [di+1], dl
-mov [di+2], dl
+	mov [di],dl
+	mov [di+1], dl
+	mov [di+2], dl
 
-mov [di+320], dl
-mov [di+321], dl
-mov [di+322], dl
+	mov [di+320], dl
+	mov [di+321], dl
+	mov [di+322], dl
 
-mov [di+640], dl
-mov [di+641], dl
-mov [di+642], dl
+	mov [di+640], dl
+	mov [di+641], dl
+	mov [di+642], dl
 
-pop dx
+	pop dx
 endm
 
 .model small
@@ -176,17 +193,22 @@ main proc
 		PintarMargen 5
 
 		mov dx,35360
-
 		Accion:
+			verTeclaPresionada
+			cmp al,'E'
+			je FIN
+			cmp al,'e'
+			je FIN
+
 			pintarPelota dx, 0 ;(i,j) = (110,160) = 110*320 + 160
 			sub dx,319
 			pintarPelota dx, 2
 			Delay 200
 			jmp Accion
 
-		getChar
-		ModoTexto
-		jmp MenuPrincipal
+		FIN:
+			ModoTexto
+			jmp MenuPrincipal
 ;---------------------METODO PARA FINALIZAR EL PROGRAMA-----------------------------
 	Salir:
 		mov ah, 4ch

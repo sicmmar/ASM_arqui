@@ -59,13 +59,12 @@ lecturaPuntos macro
     cerrarF handle
 
     pop ax
-    mov cx,ax
+    mov bx,ax
     mov si,00h
     mov di,00h
     LEER:
-        mov bx,si
-        cmp bx,cx
-        jge FIN
+        cmp si,bx
+        je FIN
 
         mov al,bufferLectura[si]
         mov arregloAux[di],al
@@ -78,7 +77,6 @@ lecturaPuntos macro
 
     FINLN:
         push si
-        inc di
         mov bx,di
         mov di,00h
         mov si,00h

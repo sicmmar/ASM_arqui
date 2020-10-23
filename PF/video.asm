@@ -42,6 +42,7 @@ endm
 ;============================= REPORTE DE TOP 10 PUNTOS =======================================
 t10Puntos macro
     lecturaPuntos
+    ordenarBurbuja punteos
     ModoVideo
     PintarMargen 3
 
@@ -52,7 +53,7 @@ endm
 lecturaPuntos macro
     local LEER, FINLN, FIN, FIN2
 
-    mov handle,00h
+    mov handle,0000h
     abrirF puntosRuta, handle
     leerF sizeof bufferLectura, bufferLectura, handle
     push ax
@@ -60,11 +61,11 @@ lecturaPuntos macro
 
     pop ax
     mov bx,ax
-    mov si,00h
-    mov di,00h
+    xor si,si
+    xor di,di
     LEER:
         cmp si,bx
-        je FIN
+        jge FIN
 
         mov al,bufferLectura[si]
         mov arregloAux[di],al
@@ -77,9 +78,10 @@ lecturaPuntos macro
 
     FINLN:
         push si
+        push bx
         mov bx,di
-        mov di,00h
-        mov si,00h
+        xor si,si
+        xor di,di
 
         INTERNA:
             cmp si,bx
@@ -95,23 +97,29 @@ lecturaPuntos macro
             jmp INTERNA
 
         PYC:
-            mov di,00h
+            xor di,di
             cleanArr arregloAux2
             inc si
             jmp INTERNA
 
         FIN2:
-            print arregloAux2
-            getChar
+            ;print arregloAux2
+            ;getChar
             ConvertirAscii arregloAux2
             colocarRespuesta punteos
             cleanArr arregloAux2
             cleanArr arregloAux
+            pop bx
             pop si
             inc si
-            mov di,00h
+            xor di,di
             jmp LEER
 
     FIN:
 
+endm
+
+;============================= ORDENAMIENTOS ======================================================
+ordenarBurbuja macro arreglo
+    
 endm

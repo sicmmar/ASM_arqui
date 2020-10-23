@@ -78,7 +78,6 @@ main proc
     mov ds,dx
 
 	MenuPrincipal:
-        cleanArr usuarioActual
 		print encab
 		print enc
 		print encab2
@@ -93,6 +92,7 @@ main proc
 
 	
 	INGRESAR:
+        cleanArr usuarioActual
         cleanArr arregloAux
         ConvertirSumaAscii userAdmin
         colocarRespuesta usuarios

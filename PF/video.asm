@@ -39,19 +39,116 @@ PintarMargen macro color
 
 endm
 
+;============================= GRAFICA DE BARRAS ==============================================
+mostrarGrafica macro arreglo,grande
+    local INICIO, FIN
+    
+    getTamanoWord arreglo
+    mov ax,cx
+    sar ax,1        
+    mov bx,ax       ;en BX esta la cantidad de numeros guardados
+    
+
+    mov ax,299 ;;ancho de 299px
+    div bx           
+    mov bx,ax       ;en BX esta 'TAM'
+
+    mov di,52810        ;en DI esta punto de partida
+
+    xor si,si
+
+    INICIO:
+
+        cmp si,cx
+        jge FIN
+
+        mov ax,160      ;alto de 160px
+        mov dx,arreglo[si]
+        mul dx      ;160 * X
+        xor dx,dx
+        div grande
+        
+        mov dx,di
+        ;mov 
+        ;PintarBarra color,dx,bx,ax
+        add dx,bx
+
+        inc si
+        inc si
+        jmp INICIO
+
+    FIN:
+
+endm
+
+PintarBarra macro color,inicio, tam, altura
+	local BARRA, FIN, INICION
+	push di
+	push si
+	push bx
+	push dx 
+    push cx
+    push ax
+
+	mov ax, color
+	mov dx,tam 
+	sub dx,3; ancho de la barra
+	mov si,inicio
+
+	mov cx,altura
+
+	;fila i, columna j = (i,j) = 320 * i + j
+
+	;empieza en pixel (i,j) = (185,10) = 320 * 185 + 10 = 59210
+	INICION:
+		cmp cx,0
+		jle FIN 
+
+		mov di,si ;este es el inicio
+
+		mov bx,si
+		add bx,dx ;BX fin horizontalmente
+
+		BARRA:
+			mov [di],ax
+			inc di
+			cmp di,bx
+			jne BARRA
+		
+		sub si,320
+		dec cx
+		jmp INICION
+
+	FIN:
+        pop ax
+        pop cx
+		pop dx
+		pop bx
+		pop si
+		pop di
+
+endm
+
 ;============================= REPORTE DE TOP 10 PUNTOS =======================================
 t10Puntos macro
+    cleanArrWord barrasGrafica
     lecturaPuntos
-    ordenarBurbuja punteos
-    ModoVideo
-    PintarMargen 3
+    ordenarBurbujaDec punteos
+    mov dx,punteos[0]
+    mov variable,dx ;en variable esta el num mas grande
+
+    cleanArrWord punteos
+    cleanArrWord barrasGrafica
+    lecturaPuntos
+    ;ModoVideo
+    mostrarGrafica punteos,variable
 
     getChar
     ModoTexto
 endm
 
 lecturaPuntos macro
-    local LEER, FINLN, FIN, FIN2
+    local LEER, FINLN, FIN, FIN2,PYC,INTERNA
 
     mov handle,0000h
     abrirF puntosRuta, handle
@@ -107,6 +204,7 @@ lecturaPuntos macro
             ;getChar
             ConvertirAscii arregloAux2
             colocarRespuesta punteos
+            colocarColores barrasGrafica
             cleanArr arregloAux2
             cleanArr arregloAux
             pop bx
@@ -120,6 +218,141 @@ lecturaPuntos macro
 endm
 
 ;============================= ORDENAMIENTOS ======================================================
-ordenarBurbuja macro arreglo
+; ------------- ORDENAMIENTO BURBUJA  --------------------
+ordenarBurbujaAsc macro arreglo
+    local INICIO, MAKESWAP, FIN, FIN2
+
+    mov [bandera],00b       ;variable para ver si hubo swap
+    getTamanoWord arreglo
     
+    dec cx
+    dec cx
+
+    xor si,si
+
+    INICIO:
+        cmp si,cx
+        jge FIN
+
+        ;mov [bandera],00b   ;no hubo swap
+        mov bx,arreglo[si]  ;pos en el arr[x]
+        mov di,si
+        inc di
+        inc di
+        mov dx,arreglo[di]  ;pos en el arr[x+1]
+        
+        cmp bx,dx
+        jg MAKESWAP     ;if arr[x] > arr[x+1] -> go to MAKESWAP
+
+        inc si
+        inc si
+        jmp INICIO
+
+    MAKESWAP:
+        mov arreglo[si],dx  ;mover arr[x] <- arr[x+1] 
+        mov arreglo[di],bx  ;mover arr[x+1] <- arr[x]
+        
+        mov [bandera],01b   ;hubo swap
+
+        inc si
+        inc si
+        jmp INICIO
+
+    FIN:
+        cmp [bandera],00b   ;no hubo swap
+        je FIN2
+
+        xor si,si
+        mov [bandera],00b
+        jmp INICIO
+    
+    FIN2:
+endm
+
+ordenarBurbujaDec macro arreglo
+    local INICIO, MAKESWAP, FIN, FIN2
+
+    mov [bandera],00b       ;variable para ver si hubo swap
+    getTamanoWord arreglo
+    
+    dec cx
+    dec cx
+
+    xor si,si
+
+    INICIO:
+        cmp si,cx
+        jge FIN
+
+        ;mov [bandera],00b   ;no hubo swap
+        mov bx,arreglo[si]  ;pos en el arr[x]
+        mov di,si
+        inc di
+        inc di
+        mov dx,arreglo[di]  ;pos en el arr[x+1]
+        
+        cmp bx,dx
+        jl MAKESWAP     ;if arr[x] < arr[x+1] -> go to MAKESWAP
+
+        inc si
+        inc si
+        jmp INICIO
+
+    MAKESWAP:
+        mov arreglo[si],dx  ;mover arr[x] <- arr[x+1] 
+        mov arreglo[di],bx  ;mover arr[x+1] <- arr[x]
+        
+        mov [bandera],01b   ;hubo swap
+
+        inc si
+        inc si
+        jmp INICIO
+
+    FIN:
+        cmp [bandera],00b   ;no hubo swap
+        je FIN2
+
+        xor si,si
+        mov [bandera],00b
+        jmp INICIO
+    
+    FIN2:
+endm
+
+; ------------ ORDENAMIENTO RAPIDO -------------------------
+ordenarRapidoAsc macro arreglo
+    local INICIO, QUICK, FIN, QUICK2, PARTITION
+
+    xor bx,bx       ;low
+    getTamanoWord arreglo
+    
+    dec cx
+    dec cx          ;high
+
+    INICIO:
+        call QUICK
+        jmp FIN
+    
+    QUICK:
+        cmp bx,cx
+        jl QUICK2   ;if low < high then QUICK2
+
+        ret
+    
+    PARTITION:
+        mov si,cx   ;si es ahora high
+        mov dx,arreglo[si]
+
+        ;mov 
+
+        ret
+    
+    QUICK2:
+        call PARTITION
+        ; quick before PI
+        ; quick after PI
+
+
+    FIN:
+
 endm

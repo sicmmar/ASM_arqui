@@ -325,6 +325,61 @@ colocarRespuesta macro arreglo
 
 endm
 
+colocarColores macro arreglo
+    local INICIO, FIN, ROJO, AZUL, AMARILLO, VERDE, BLANCO, FINALIZAR
+
+    push si
+    push bx
+    xor si,si
+
+    INICIO:
+        mov bx,arreglo[si]
+        cmp bx,00h
+        je FIN
+
+        inc si
+        inc si
+        jmp INICIO
+
+    FIN:
+        mov arreglo[si],ax
+        
+        cmp ax,20d
+        jle ROJO
+        cmp ax,40d
+        jle AZUL
+        cmp ax,60d
+        jle AMARILLO
+        cmp ax,80d
+        jle VERDE
+        cmp ax,99d
+        jle BLANCO
+
+    ROJO:
+        mov barrasGrafica[si],0Ch
+        jmp FINALIZAR
+    
+    AZUL:
+        mov barrasGrafica[si],09h
+        jmp FINALIZAR
+
+    AMARILLO:
+        mov barrasGrafica[si],0Eh
+        jmp FINALIZAR
+
+    VERDE:
+        mov barrasGrafica[si],02h
+        jmp FINALIZAR
+    
+    BLANCO:
+        mov barrasGrafica[si],0Fh
+    
+    FINALIZAR:
+        pop bx
+        pop si
+
+endm
+
 searchID macro
     ;lo que devuelve el id, se coloca en dx
     local INICIO, NOENCONTRADO, ENCONTRADO, FIN
@@ -554,6 +609,48 @@ tamanoArr macro actual
     
     FIN:
         inc si
+        mov cx,si
+
+    pop si
+endm
+
+getTamanoWord macro actual
+    local INICIO, FIN
+    push si
+    xor si,si
+    
+    INICIO:
+        cmp actual[si],00h
+        je FIN
+        inc si
+        inc si
+        jmp INICIO
+    
+    FIN:
+        mov cx,si
+
+    pop si
+endm
+
+mostrarArreglo macro arreglo
+    local INICIO, FIN
+    push si
+    xor si,si
+    
+    INICIO:
+        cmp arreglo[si],00h
+        je FIN
+
+        mov ax,arreglo[si]
+        ConvertirString auxWord
+        print auxWord
+        getChar
+
+        inc si
+        inc si
+        jmp INICIO
+    
+    FIN:
         mov cx,si
 
     pop si

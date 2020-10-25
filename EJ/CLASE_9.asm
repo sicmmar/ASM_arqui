@@ -55,41 +55,85 @@ endm
 ;mov [di],30h
 
 PintarMargen macro color
-mov dl, color
+	mov dl, color
 
-;empieza en pixel (i,j) = (20,0) = 20*320+0 = 6400
-;barra horizontal superior
-mov di,6405
-Primera:
-mov [di],dl
-inc di
-cmp di,6714
-jne Primera
+	;empieza en pixel (i,j) = (20,0) = 20*320+0 = 6400
+	;barra horizontal superior
+	mov di,6405
+	Primera:
+	mov [di],dl
+	inc di
+	cmp di,6714
+	jne Primera
 
-;barra horizontal inferior
-;empieza en pixel (i,j) = (190,0) = 190 * 320 + 0 = 60800
-mov di,60805
-Segunda:
-mov [di],dl
-inc di
-cmp di, 61114
-jne Segunda
+	;barra horizontal inferior
+	;empieza en pixel (i,j) = (190,0) = 190 * 320 + 0 = 60800
+	mov di,60805
+	Segunda:
+	mov [di],dl
+	inc di
+	cmp di, 61114
+	jne Segunda
 
-;barra vertical izquierda
-mov di, 6405
-Tercera:
-mov [di], dl
-add di,320
-cmp di,60805
-jne Tercera
+	;barra vertical izquierda
+	mov di, 6405
+	Tercera:
+	mov [di], dl
+	add di,320
+	cmp di,60805
+	jne Tercera
 
-;barra vertical derecha
-mov di,6714
-Cuarta:
-mov [di], dl
-add di,320
-cmp di,61114
-jne Cuarta
+	;barra vertical derecha
+	mov di,6714
+	Cuarta:
+	mov [di], dl
+	add di,320
+	cmp di,61114
+	jne Cuarta
+
+endm
+
+PintarBarra macro color,inicio, tam, altura
+	local BARRA, FIN, INICION
+	push di
+	push si
+	push bx
+	push dx 
+
+	mov dl, color
+	mov dx,tam 
+	sub dx,3; ancho de la barra
+	mov si,inicio
+
+	mov cx,altura
+
+	;fila i, columna j = (i,j) = 320 * i + j
+
+	;empieza en pixel (i,j) = (185,10) = 320 * 185 + 10 = 59210
+	INICION:
+		cmp cx,0
+		jle FIN 
+
+		mov di,si ;este es el inicio
+
+		mov bx,si
+		add bx,dx ;BX fin horizontalmente
+
+		BARRA:
+			mov [di],dl
+			inc di
+			cmp di,bx
+			jne BARRA
+		
+		sub si,320
+		dec cx
+		jmp INICION
+
+	FIN:
+		pop dx
+		pop bx
+		pop si
+		pop di
 
 endm
 
@@ -191,20 +235,31 @@ main proc
 	Video1:
 		ModoVideo
 		PintarMargen 5
+		mov dx,29
+		mov si,52810
+		mov bx,si
+		PintarBarra 0Fh,bx,dx,140
+		add bx,dx
+		PintarBarra 0Fh,bx,dx,140
+		add bx,dx
+		PintarBarra 0Fh,bx,dx,140
+		add bx,dx
+		PintarBarra 0Fh,bx,dx,140
+		add bx,dx
+		PintarBarra 0Fh,bx,dx,140
+		add bx,dx
+		PintarBarra 0Fh,bx,dx,140
+		add bx,dx
+		PintarBarra 0Fh,bx,dx,140
+		add bx,dx
+		PintarBarra 0Fh,bx,dx,140
+		add bx,dx
+		PintarBarra 0Fh,bx,dx,140
+		add bx,dx
+		PintarBarra 0Fh,bx,dx,140
+		add bx,dx
+		getChar
 
-		mov dx,35360
-		Accion:
-			verTeclaPresionada
-			cmp al,'E'
-			je FIN
-			cmp al,'e'
-			je FIN
-
-			pintarPelota dx, 0 ;(i,j) = (110,160) = 110*320 + 160
-			sub dx,319
-			pintarPelota dx, 2
-			Delay 200
-			jmp Accion
 
 		FIN:
 			ModoTexto

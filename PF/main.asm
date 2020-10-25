@@ -13,14 +13,15 @@ usuarioActual db 70 dup('$'),10,13
 ordenados word 100 dup(00h),'$'
 variable word ?
 auxWord word 34 dup('$'),10,13
-resultadosTmp word 34 dup('$'),10,13
+
 contrasenas word 100 dup(00h),'$'
 usuarios word 100 dup(00h),'$'
 punteos word 100 dup(00h),'$'
-nombresIdentificadores db 3000 dup('$')
+barrasGrafica word 100 dup (00h),'$'
+sonidos word 100 dup(00h),'$'
+
 bufferLectura db 30000 dup('$')
 bufferEscritura db 200 dup('$')
-resultados db 1000 dup('$')
 handleFichero dw ?
 handle2 dw ?
 handle dw ?
@@ -70,6 +71,7 @@ contraNumerica db 10,13,32,173,173,' Contrase',164,'a debe ser num',130,'rica !!
 
 saveSuccess db 10,13, ' ',173,173,' Archivo guardado con ',130,'xito !!','$'
 loadSuccess db 10,13, ' ',173,173,' Archivo cargado con ',130,'xito !!','$'
+bandera word 10 dup(00h)
 
 .code	
 	
@@ -121,6 +123,7 @@ main proc
         je VALIDOS
 
         print contraNoValida
+        cleanArr usuarioActual
         getChar
 		jmp MenuPrincipal
     

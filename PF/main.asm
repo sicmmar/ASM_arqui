@@ -12,6 +12,7 @@ arregloAux db 70 dup('$'),10,13
 usuarioActual db 70 dup('$'),10,13
 ordenados word 100 dup(00h),'$'
 variable word ?
+tamano word ?
 auxWord word 34 dup('$'),10,13
 
 contrasenas word 100 dup(00h),'$'

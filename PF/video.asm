@@ -40,7 +40,7 @@ PintarMargen macro color
 endm
 
 ;============================= GRAFICA DE BARRAS ==============================================
-mostrarGrafica macro
+mostrarGrafica macro arreglo
     local INICIO, FIN
     
     getTamanoWord punteos
@@ -48,12 +48,11 @@ mostrarGrafica macro
     sar ax,1
     mov bx,ax       ;en BX esta la cantidad de numeros guardados
     
-
     mov ax,299 ;;ancho de 299px
     div bx   
-    mov bx,ax       ;en BX esta 'TAM'
+    mov tamano,ax       ;en tamano esta 'TAM'
 
-    mov di,52810        ;en DI esta punto de partida
+    mov di,52817        ;en DI esta punto de partida
 
     xor si,si
 
@@ -61,25 +60,29 @@ mostrarGrafica macro
 
         cmp si,cx
         jge FIN
+        
+        push si
 
-        mov ax,160      ;alto de 160px
-        mov dx,punteos[si]
+        mov ax,137      ;alto de 160px
+        mov dx,arreglo[si]
         ;mov dx,23
         mul dx      ;160 * X
 
-        push bx
         mov bx,variable
         div bx
-        pop bx
 
-        push si
-        mov si,barrasGrafica[si]
+        mov bx,ax       ;160*X dividido el mas grande
+        mov dx,barrasGrafica[si]
+        mov si,tamano
+        dirModoVideo
         ;PintarBarra si,di,bx,dx
-        add di,bx
-        mov ax,si
-        ConvertirString auxWord
-        print auxWord
-        getChar
+        PintarBarra dx,di,si,bx
+        dirModoTexto
+        add di,29
+        ;mov ax,si
+        ;ConvertirString auxWord
+        ;print auxWord
+        ;getChar
 
         pop si
 
@@ -150,11 +153,11 @@ t10Puntos macro
     cleanArrWord punteos
     cleanArrWord barrasGrafica
     lecturaPuntos
-    mostrarGrafica
+    ;mostrarGrafica
     ModoVideo
     PintarMargen 3
     dirModoTexto
-    ;mostrarGrafica
+    mostrarGrafica punteos
     
     ;verTeclaPresionada
     getKey

@@ -4,6 +4,10 @@ ModoVideo macro
     mov ah,00h
     mov al,13h
     int 10h
+    dirModoVideo
+endm
+
+dirModoVideo macro
     mov ax, 0A000h
     mov ds, ax  ; DS = A000h (memoria de graficos).
 endm
@@ -12,8 +16,12 @@ ModoTexto macro
     mov ah,00h
     mov al,03h
     int 10h
-    mov dx,@data
-    mov ds,dx
+    dirModoTexto
+endm
+
+dirModoTexto macro
+    mov ax,@data
+    mov ds,ax
 endm
 
 verTeclaPresionada macro

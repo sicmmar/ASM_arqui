@@ -24,6 +24,28 @@ dirModoTexto macro
     mov ds,ax
 endm
 
+delay macro constante
+	LOCAL D1,D2,Fin
+	push si
+	push di
+
+	mov si,constante
+
+	D1:
+		dec si
+		jz Fin
+		mov di,constante
+		
+	D2:
+		dec di
+		jnz D2
+		jmp D1
+
+	Fin:
+		pop di
+		pop si
+endm
+
 verTeclaPresionada macro
     local FIN
 

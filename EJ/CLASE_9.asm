@@ -52,9 +52,35 @@ pop di
 pop si
 endm
 
+limpiarGrafica macro
+    local INICIO, FIN, BARRA
+
+    mov cx,137
+    INICIO:
+		cmp cx,0
+		jle FIN 
+
+		mov di,15 ;este es el inicio
+
+		mov bx,298 ;BX fin horizontalmente
+
+		BARRA:
+			mov [di],ax
+			inc di
+			cmp di,bx
+			jne BARRA
+		
+		sub si,320
+		dec cx
+		jmp INICIO
+
+    FIN:
+endm
 ;mov [di],30h
 
 PintarMargen macro color
+	local Primera, Segunda, Tercera, Cuarta
+
 	mov dl, color
 
 	;empieza en pixel (i,j) = (20,0) = 20*320+0 = 6400
@@ -239,24 +265,51 @@ main proc
 		mov si,52810
 		mov bx,si
 		PintarBarra 0Fh,bx,dx,140
+		Delay 500
 		add bx,dx
 		PintarBarra 0Fh,bx,dx,140
+		Delay 500
 		add bx,dx
 		PintarBarra 0Fh,bx,dx,140
+		Delay 500
 		add bx,dx
 		PintarBarra 0Fh,bx,dx,140
+		Delay 500
 		add bx,dx
 		PintarBarra 0Fh,bx,dx,140
+		Delay 500
 		add bx,dx
 		PintarBarra 0Fh,bx,dx,140
+		Delay 500
 		add bx,dx
 		PintarBarra 0Fh,bx,dx,140
+		Delay 500
 		add bx,dx
 		PintarBarra 0Fh,bx,dx,140
+		Delay 500
 		add bx,dx
 		PintarBarra 0Fh,bx,dx,140
+		Delay 500
 		add bx,dx
 		PintarBarra 0Fh,bx,dx,140
+		Delay 500
+		Delay 500
+		add bx,dx
+		Delay 100
+		;ModoTexto
+		ModoVideo
+		PintarMargen 2
+		Delay 200
+		mov dx,29
+		mov si,52810
+		mov bx,si
+		PintarBarra 0Fh,bx,dx,140
+		Delay 500
+		Delay 500
+		Delay 500
+		add bx,dx
+		PintarBarra 0Fh,bx,dx,140
+		Delay 500
 		add bx,dx
 		getChar
 

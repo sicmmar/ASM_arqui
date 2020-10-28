@@ -1,4 +1,6 @@
 PintarMargen macro color
+    local Primera, Segunda, Tercera, Cuarta
+
     mov dl, color
 
     ;formula es de 320 * i + j
@@ -42,7 +44,14 @@ endm
 ;============================= GRAFICA DE BARRAS ==============================================
 mostrarGrafica macro arreglo
     local INICIO, FIN
-    
+
+    push ax
+    push bx
+    push cx
+    push dx
+    push si
+    push di 
+
     getTamanoWord punteos
     mov ax,cx
     sar ax,1
@@ -76,7 +85,8 @@ mostrarGrafica macro arreglo
         mov si,tamano
         dirModoVideo
         ;PintarBarra si,di,bx,dx
-        PintarBarra dx,di,si,bx
+        PintarBarra dx,di,29,bx
+        delay 200
         dirModoTexto
         add di,29
         ;mov ax,si
@@ -91,6 +101,12 @@ mostrarGrafica macro arreglo
         jmp INICIO
 
     FIN:
+        pop di
+        pop si
+        pop dx
+        pop cx
+        pop bx
+        pop ax
 
 endm
 
@@ -103,7 +119,7 @@ PintarBarra macro color,inicio, tam, altura
     push cx
     push ax
 
-	mov ax, color
+	mov ax,color
 	mov dx,tam 
 	sub dx,3; ancho de la barra
 	mov si,inicio
@@ -146,7 +162,7 @@ endm
 t10Puntos macro
     cleanArrWord barrasGrafica
     lecturaPuntos
-    ordenarBurbujaDec punteos
+    ordenarBurbujaDecSinGraf punteos
     mov dx,punteos[0]
     mov variable,dx ;en variable esta el num mas grande
 
@@ -158,6 +174,9 @@ t10Puntos macro
     PintarMargen 3
     dirModoTexto
     mostrarGrafica punteos
+    
+    dirModoTexto
+    ordenarBurbujaAsc punteos
     
     ;verTeclaPresionada
     getKey
@@ -268,6 +287,18 @@ ordenarBurbujaAsc macro arreglo
     MAKESWAP:
         mov arreglo[si],dx  ;mover arr[x] <- arr[x+1] 
         mov arreglo[di],bx  ;mover arr[x+1] <- arr[x]
+        mov dx,barrasGrafica[si]
+        mov bx,barrasGrafica[di]
+        mov barrasGrafica[si],bx
+        mov barrasGrafica[di],dx
+
+        ;dirModoVideo
+        ModoVideo
+        PintarMargen 3
+
+        dirModoTexto
+        mostrarGrafica arreglo
+        dirModoTexto
         
         mov [bandera],01b   ;hubo swap
 
@@ -318,6 +349,13 @@ ordenarBurbujaDec macro arreglo
     MAKESWAP:
         mov arreglo[si],dx  ;mover arr[x] <- arr[x+1] 
         mov arreglo[di],bx  ;mover arr[x+1] <- arr[x]
+
+        mov dx,barrasGrafica[si]
+        mov bx,barrasGrafica[di]
+        mov barrasGrafica[si],bx
+        mov barrasGrafica[di],dx
+
+
         
         mov [bandera],01b   ;hubo swap
 
@@ -336,6 +374,55 @@ ordenarBurbujaDec macro arreglo
     FIN2:
 endm
 
+ordenarBurbujaDecSinGraf macro arreglo
+    local INICIO, MAKESWAP, FIN, FIN2
+
+    mov [bandera],00b       ;variable para ver si hubo swap
+    getTamanoWord arreglo
+    
+    dec cx
+    dec cx
+
+    xor si,si
+
+    INICIO:
+        cmp si,cx
+        jge FIN
+
+        ;mov [bandera],00b   ;no hubo swap
+        mov bx,arreglo[si]  ;pos en el arr[x]
+        mov di,si
+        inc di
+        inc di
+        mov dx,arreglo[di]  ;pos en el arr[x+1]
+        
+        cmp bx,dx
+        jl MAKESWAP     ;if arr[x] < arr[x+1] -> go to MAKESWAP
+
+        inc si
+        inc si
+        jmp INICIO
+
+    MAKESWAP:
+        mov arreglo[si],dx  ;mover arr[x] <- arr[x+1] 
+        mov arreglo[di],bx  ;mover arr[x+1] <- arr[x]
+        
+        mov [bandera],01b   ;hubo swap
+
+        inc si
+        inc si
+        jmp INICIO
+
+    FIN:
+        cmp [bandera],00b   ;no hubo swap
+        je FIN2
+
+        xor si,si
+        mov [bandera],00b
+        jmp INICIO
+    
+    FIN2:
+endm
 ; ------------ ORDENAMIENTO RAPIDO -------------------------
 ordenarRapidoAsc macro arreglo
     local INICIO, QUICK, FIN, QUICK2, PARTITION

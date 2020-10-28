@@ -50,7 +50,7 @@ msjOpc4 db 10,10,13,9,'-----------------------  TOP 10 PUNTOS  -----------------
 msjOpc5 db 10,10,13,9,'-----------------------  TOP 10 TIEMPO  -----------------------',10,13,'$'
 msjOpc6 db 10,10,13,9,'-----------------------  INICIO JUEGO  -----------------------',10,13,'$'
 saltoln db 10,13,'$'
-console db 10,13,32,32,175,32,'$'
+encabGrafica db 'ORD: ',32,'    TIPO: ',32,32,'C'
 ;; mensajees :D
 msmError1 db 0ah,0dh,'Error al abrir archivo','$'
 msmError2 db 0ah,0dh,'Error al leer archivo','$'

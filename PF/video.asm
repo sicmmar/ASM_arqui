@@ -176,7 +176,7 @@ t10Puntos macro
     mostrarGrafica punteos
     
     dirModoTexto
-    ordenarBurbujaAsc punteos
+    ordenarBurbujaDec punteos
     
     ;verTeclaPresionada
     getKey
@@ -254,7 +254,7 @@ lecturaPuntos macro
 endm
 
 ;============================= ORDENAMIENTOS ======================================================
-; ------------- ORDENAMIENTO BURBUJA  --------------------
+; ------------- ORDENAMIENTO BURBUJA  ----------------------
 ordenarBurbujaAsc macro arreglo
     local INICIO, MAKESWAP, FIN, FIN2
 
@@ -355,7 +355,13 @@ ordenarBurbujaDec macro arreglo
         mov barrasGrafica[si],bx
         mov barrasGrafica[di],dx
 
+        ;dirModoVideo
+        ModoVideo
+        PintarMargen 3
 
+        dirModoTexto
+        mostrarGrafica arreglo
+        dirModoTexto
         
         mov [bandera],01b   ;hubo swap
 
@@ -423,7 +429,7 @@ ordenarBurbujaDecSinGraf macro arreglo
     
     FIN2:
 endm
-; ------------ ORDENAMIENTO RAPIDO -------------------------
+; ------------- ORDENAMIENTO RAPIDO -------------------------
 ordenarRapidoAsc macro arreglo
     local INICIO, QUICK, FIN, QUICK2, PARTITION
 

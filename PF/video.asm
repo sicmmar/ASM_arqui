@@ -41,6 +41,37 @@ PintarMargen macro color
 
 endm
 
+mostrarTextoVideo macro numTam, fila, columna, cadena
+
+    push ax
+    push bx
+    push cx
+    push dx
+    push si
+    push di
+
+    push ds
+    pop es
+
+    mov ah,13h
+    mov al,0
+    mov bh,0
+    mov bl,0
+    mov cx,numTam
+    mov dh,fila
+    mov dl,columna
+    lea bx, ds:cadena
+    mov bp,bx
+    int 10h
+
+    pop di
+    pop si
+    pop dx
+    pop cx
+    pop bx
+    pop ax
+
+endm
 ;============================= GRAFICA DE BARRAS ==============================================
 mostrarGrafica macro arreglo
     local INICIO, FIN
@@ -52,7 +83,7 @@ mostrarGrafica macro arreglo
     push si
     push di 
 
-    getTamanoWord punteos
+    getTamanoWord arreglo
     mov ax,cx
     sar ax,1
     mov bx,ax       ;en BX esta la cantidad de numeros guardados
@@ -83,6 +114,7 @@ mostrarGrafica macro arreglo
         mov bx,ax       ;160*X dividido el mas grande
         mov dx,barrasGrafica[si]
         mov si,tamano
+        mostrarTextoVideo cx,22,2,arreglo
         dirModoVideo
         ;PintarBarra si,di,bx,dx
         PintarBarra dx,di,29,bx
@@ -173,6 +205,7 @@ t10Puntos macro
     ModoVideo
     PintarMargen 3
     dirModoTexto
+    mostrarTextoVideo 19,1,2,encabGrafica
     mostrarGrafica punteos
     
     dirModoTexto
@@ -297,6 +330,7 @@ ordenarBurbujaAsc macro arreglo
         PintarMargen 3
 
         dirModoTexto
+        mostrarTextoVideo 19,1,2,encabGrafica
         mostrarGrafica arreglo
         dirModoTexto
         
@@ -360,6 +394,7 @@ ordenarBurbujaDec macro arreglo
         PintarMargen 3
 
         dirModoTexto
+        mostrarTextoVideo 19,1,2,encabGrafica
         mostrarGrafica arreglo
         dirModoTexto
         

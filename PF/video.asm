@@ -73,7 +73,7 @@ mostrarTextoVideo macro numTam, fila, columna, cadena
 
 endm
 ;============================= GRAFICA DE BARRAS ==============================================
-mostrarGrafica macro arreglo
+mostrarGrafica macro arreglo,vel
     local INICIO, FIN
 
     push ax
@@ -119,7 +119,7 @@ mostrarGrafica macro arreglo
         PintarBarra dx,di,29,bx
         dirModoTexto
         ;pintarNumeros arreglo
-        delay 250
+        delay vel
         add di,29
         ;mov ax,si
         ;ConvertirString auxWord
@@ -271,8 +271,11 @@ t10Puntos macro
 
         xor bx,bx
         mov bl,al
-        sub bl,48
-        mov speed,bx
+        mov encabGrafica[36],bl
+        sub bl,47
+        mov ax,110
+        mul bx
+        mov speed,ax
     
     ASCODESC:
         print opc3
@@ -301,7 +304,7 @@ t10Puntos macro
         ordenarBurbujaDecSinGraf punteos
         mov dx,punteos[0]
         mov variable,dx ;en variable esta el num mas grande
-        
+
         cleanArr arregloAux
         cleanArrWord punteos
         cleanArrWord barrasGrafica
@@ -309,14 +312,33 @@ t10Puntos macro
         ModoVideo
         PintarMargen 3
         dirModoTexto
-        mostrarTextoVideo 21,1,2,encabGrafica
-        mostrarGrafica punteos
-        pintarNumeros punteos  
+        mostrarTextoVideo 37,1,2,encabGrafica
 
+        mostrarGrafica punteos,10
+        pintarNumeros punteos 
+        getKey
 
-        ;verTeclaPresionada
-    getKey
-    ModoTexto
+        dirModoTexto
+        cmp encabGrafica[5],'B'
+        je HACERBURBUJA
+
+        jmp FIN
+
+    HACERBURBUJA:
+        cmp encabGrafica[18],'A'
+        je BUASC
+
+        ordenarBurbujaDec punteos,speed
+        jmp FIN
+    
+    BUASC:
+        ordenarBurbujaAsc punteos,speed
+        jmp FIN
+
+    FIN:
+        ;pintarNumeros punteos
+        getKey
+        ModoTexto
 
 endm
 
@@ -392,7 +414,7 @@ endm
 
 ;============================= ORDENAMIENTOS ======================================================
 ; ------------- ORDENAMIENTO BURBUJA  ----------------------
-ordenarBurbujaAsc macro arreglo
+ordenarBurbujaAsc macro arreglo,vel
     local INICIO, MAKESWAP, FIN, FIN2
 
     mov [bandera],00b       ;variable para ver si hubo swap
@@ -434,8 +456,8 @@ ordenarBurbujaAsc macro arreglo
         PintarMargen 3
 
         dirModoTexto
-        mostrarTextoVideo 21,1,2,encabGrafica
-        mostrarGrafica arreglo
+        mostrarTextoVideo 37,1,2,encabGrafica
+        mostrarGrafica arreglo,vel
         dirModoTexto
         
         mov [bandera],01b   ;hubo swap
@@ -455,7 +477,7 @@ ordenarBurbujaAsc macro arreglo
     FIN2:
 endm
 
-ordenarBurbujaDec macro arreglo
+ordenarBurbujaDec macro arreglo, vel
     local INICIO, MAKESWAP, FIN, FIN2
 
     mov [bandera],00b       ;variable para ver si hubo swap
@@ -498,8 +520,8 @@ ordenarBurbujaDec macro arreglo
         PintarMargen 3
 
         dirModoTexto
-        mostrarTextoVideo 21,1,2,encabGrafica
-        mostrarGrafica arreglo
+        mostrarTextoVideo 37,1,2,encabGrafica
+        mostrarGrafica arreglo,vel
         dirModoTexto
         
         mov [bandera],01b   ;hubo swap

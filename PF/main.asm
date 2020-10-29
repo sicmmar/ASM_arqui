@@ -53,7 +53,7 @@ msjOpc4 db 10,10,13,9,'-----------------------  TOP 10 PUNTOS  -----------------
 msjOpc5 db 10,10,13,9,'-----------------------  TOP 10 TIEMPO  -----------------------',10,13,'$'
 msjOpc6 db 10,10,13,9,'-----------------------  INICIO JUEGO  -----------------------',10,13,'$'
 saltoln db 10,13,'$'
-encabGrafica db 'ORD:  ',32,'    TIPO:  ',32,32,'C' ; 5; 18 y 19
+encabGrafica db 'ORD:  ',32,'    TIPO:  ',32,32,'C    VELOCIDAD:  ' ; 5; 18 y 19; 36
 speed word ?
 ;; mensajees :D
 msmError1 db 0ah,0dh,'Error al abrir archivo','$'

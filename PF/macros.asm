@@ -206,6 +206,57 @@ cleanArrWord macro arr
     POP SI
 endm
 
+ConvertirStringByte macro buffer
+	LOCAL Dividir,Dividir2,FinCr3,NEGATIVO,FIN2,FIN
+    push si
+    push cx 
+    push bx
+    push dx
+    push ax
+
+	xor si,si
+	xor cx,cx
+	xor bx,bx
+	xor dx,dx
+
+	mov dl,0ah
+	cmp ax,0
+	jl NEGATIVO
+	jmp Dividir2
+
+	NEGATIVO:
+		neg ax
+		mov buffer[si],45
+		inc si
+		jmp Dividir2
+
+	Dividir:
+		xor ah,ah
+	Dividir2:
+		div dl
+		inc cx
+		push ax
+		cmp al,00h
+		je FinCr3
+		jmp Dividir
+	FinCr3:
+		pop ax
+		add ah,30h
+		mov buffer[si],ah
+		inc si
+		loop FinCr3
+		mov ah,32
+		mov buffer[si],ah
+		inc si
+	FIN:
+        mov buffer[si],32
+        pop ax
+        pop dx
+        pop bx
+        pop cx
+        pop si
+endm
+
 ConvertirString macro buffer
 	LOCAL Dividir,Dividir2,FinCr3,NEGATIVO,FIN2,FIN
     push si
@@ -638,7 +689,6 @@ tamanoArr macro actual
         jmp INICIO
     
     FIN:
-        inc si
         mov cx,si
 
     pop si
@@ -689,7 +739,7 @@ endm
 pasarArr macro actual, otro
     local INICIO
     push si
-    mov si,00h
+    xor si,si
     tamanoArr actual
 
     INICIO:
@@ -698,6 +748,33 @@ pasarArr macro actual, otro
         inc si
         loop INICIO
 
+    pop si
+endm
+
+unirNumeros macro
+    local INICIO
+    
+    push si
+    push di
+    push bx
+    push cx
+
+    xor di,di
+    tamanoArr arregloAux ;donde esta TODO
+    mov si,cx
+
+    tamanoArr arregloAux2 ;donde esta un solo NUM
+
+    INICIO:
+        mov bh,arregloAux2[di]
+        mov arregloAux[si],bh
+        inc si
+        inc di
+        loop INICIO
+    
+    pop cx
+    pop bx
+    pop di
     pop si
 endm
 

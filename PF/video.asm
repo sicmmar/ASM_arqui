@@ -60,7 +60,7 @@ mostrarTextoVideo macro numTam, fila, columna, cadena
     mov cx,numTam
     mov dh,fila
     mov dl,columna
-    lea bx, ds:cadena
+    lea bx,cadena
     mov bp,bx
     int 10h
 
@@ -114,12 +114,12 @@ mostrarGrafica macro arreglo
         mov bx,ax       ;160*X dividido el mas grande
         mov dx,barrasGrafica[si]
         mov si,tamano
-        mostrarTextoVideo cx,22,2,arreglo
         dirModoVideo
         ;PintarBarra si,di,bx,dx
         PintarBarra dx,di,29,bx
-        delay 200
         dirModoTexto
+        ;pintarNumeros arreglo
+        delay 250
         add di,29
         ;mov ax,si
         ;ConvertirString auxWord
@@ -127,12 +127,12 @@ mostrarGrafica macro arreglo
         ;getChar
 
         pop si
-
         inc si
         inc si
         jmp INICIO
 
     FIN:
+        ;pintarNumeros arreglo
         pop di
         pop si
         pop dx
@@ -190,30 +190,134 @@ PintarBarra macro color,inicio, tam, altura
 
 endm
 
+pintarNumeros macro arreglo
+    local INICIO, FIN
+
+    push si
+    push cx
+    push di
+    push dx
+
+    xor dx,dx
+    xor si,si
+    getTamanoWord arreglo
+    mov di,cx
+    mov dl,2
+
+    INICIO:
+        cmp si,di
+        jge FIN
+
+        cleanArr arregloAux2
+        mov ax,arreglo[si]
+        ConvertirStringByte arregloAux2
+        tamanoArr arregloAux2
+        unirNumeros 
+        add dl,2
+
+
+        inc si
+        inc si
+        jmp INICIO
+
+    FIN:
+        mostrarTextoVideo 37,22,2,arregloAux
+        pop dx
+        pop di
+        pop cx
+        pop si
+endm
+
 ;============================= REPORTE DE TOP 10 PUNTOS =======================================
 t10Puntos macro
-    cleanArrWord barrasGrafica
-    lecturaPuntos
-    ordenarBurbujaDecSinGraf punteos
-    mov dx,punteos[0]
-    mov variable,dx ;en variable esta el num mas grande
-
-    cleanArrWord punteos
-    cleanArrWord barrasGrafica
-    lecturaPuntos
+    local INICIO, BUBBLEPICK, QUICKPICK, SHELLPICK, VERSPEED, ASCODESC, ASCPICK, DESCPICK, ERRORSPEED, GRAFICAR
     ;mostrarGrafica
-    ModoVideo
-    PintarMargen 3
-    dirModoTexto
-    mostrarTextoVideo 19,1,2,encabGrafica
-    mostrarGrafica punteos
+    INICIO:
+        print opc1
+        getChar
+        cmp al,'1'
+        je BUBBLEPICK
+        cmp al,'2'
+        je  QUICKPICK
+        cmp al,'3'
+        je SHELLPICK
+
+    jmp INICIO
+
+
+    ERRORSPEED:
+        print contraNumerica
+        jmp INICIO
+
+    BUBBLEPICK:
+        mov encabGrafica[5],'B'
+
+        jmp VERSPEED
+
+    QUICKPICK:
+        mov encabGrafica[5],'Q'
+        jmp VERSPEED
+
+    SHELLPICK:
+        mov encabGrafica[5],'S'
     
-    dirModoTexto
-    ordenarBurbujaDec punteos
+    VERSPEED:
+        print opc2
+        getChar
+        cmp al,'0'
+        jl ERRORSPEED
+        cmp al,'9'
+        jg ERRORSPEED
+
+        xor bx,bx
+        mov bl,al
+        sub bl,48
+        mov speed,bx
     
-    ;verTeclaPresionada
+    ASCODESC:
+        print opc3
+        getChar
+        cmp al,'1'
+        je ASCPICK
+        cmp al,'2'
+        je  DESCPICK
+
+    jmp INICIO
+
+    ASCPICK:
+        mov encabGrafica[18],'A'
+        mov encabGrafica[19],'S'
+        jmp GRAFICAR
+
+    DESCPICK:
+        mov encabGrafica[17],'D'
+        mov encabGrafica[18],'E'
+        mov encabGrafica[19],'S'
+        jmp GRAFICAR
+
+    GRAFICAR:   
+        cleanArrWord barrasGrafica
+        lecturaPuntos
+        ordenarBurbujaDecSinGraf punteos
+        mov dx,punteos[0]
+        mov variable,dx ;en variable esta el num mas grande
+        
+        cleanArr arregloAux
+        cleanArrWord punteos
+        cleanArrWord barrasGrafica
+        lecturaPuntos
+        ModoVideo
+        PintarMargen 3
+        dirModoTexto
+        mostrarTextoVideo 21,1,2,encabGrafica
+        mostrarGrafica punteos
+        pintarNumeros punteos  
+
+
+        ;verTeclaPresionada
     getKey
     ModoTexto
+
 endm
 
 lecturaPuntos macro
@@ -330,7 +434,7 @@ ordenarBurbujaAsc macro arreglo
         PintarMargen 3
 
         dirModoTexto
-        mostrarTextoVideo 19,1,2,encabGrafica
+        mostrarTextoVideo 21,1,2,encabGrafica
         mostrarGrafica arreglo
         dirModoTexto
         
@@ -394,7 +498,7 @@ ordenarBurbujaDec macro arreglo
         PintarMargen 3
 
         dirModoTexto
-        mostrarTextoVideo 19,1,2,encabGrafica
+        mostrarTextoVideo 21,1,2,encabGrafica
         mostrarGrafica arreglo
         dirModoTexto
         

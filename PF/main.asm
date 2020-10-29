@@ -7,7 +7,7 @@ include macros.asm
 ;dw -> dato word -> 16 bits
 ;dd -> doble word -> 32 bits
 nombrePadre db 72 dup('$')
-arregloAux2 db 70 dup('$'),10,13
+arregloAux2 db 200 dup('$')
 arregloAux db 70 dup('$'),10,13
 usuarioActual db 70 dup('$'),10,13
 ordenados word 100 dup(00h),'$'
@@ -43,6 +43,9 @@ encab db 10,10,13,'UNIVERSIDAD DE SAN CARLOS DE GUATEMALA',10,13,'FACULTAD DE IN
 enc db 10,10,13,'NOMBRE: ASUNCION MARIANA SIC SOR',10,13,'CARNET: 201504051',10,13,'SECCION: A','$'
 encab2 db 10,13,10,13,'1. Ingresar',10,13,'2. Registrar',10,13,'3. Salir',10,13,10,'::Escoja una opci',162,'n  ','$'
 opcAdmin db 10,13,10,13,'1. Top 10 Puntos',10,13,'2. Top 10 Tiempo',10,13,'3. Salir',10,13,10,'::Escoja una opci',162,'n  ','$'
+opc1 db 10,13,10,13,'1. Bubble Sort',10,13,'2. Quick Sort',10,13,'3. Shell Sort',10,13,10,'::Escoja un ordenamiento  ','$'
+opc2 db 10,13,10,13,'::Ingrese una velocidad (0-9 ',175,' 0 ',25,32,38,' 9 ',24,')  ','$'
+opc3 db 10,13,10,13,'1. Descendente',10,13,'2. Ascendente',10,13,10,'::Escoja una opci',162,'n para ordenar  ','$'
 msjOpc1 db 10,10,13,9,'-----------------------  INGRESAR  -----------------------',10,13,'$'
 msjOpc2 db 10,10,13,9,'-----------------------  REGISTRAR  -----------------------',10,13,'$'
 msjOpc3 db 10,10,13,9,'-----------------------  ADIOS  -----------------------',10,13,'$'
@@ -50,7 +53,8 @@ msjOpc4 db 10,10,13,9,'-----------------------  TOP 10 PUNTOS  -----------------
 msjOpc5 db 10,10,13,9,'-----------------------  TOP 10 TIEMPO  -----------------------',10,13,'$'
 msjOpc6 db 10,10,13,9,'-----------------------  INICIO JUEGO  -----------------------',10,13,'$'
 saltoln db 10,13,'$'
-encabGrafica db 'ORD: ',32,'    TIPO: ',32,32,'C'
+encabGrafica db 'ORD:  ',32,'    TIPO:  ',32,32,'C' ; 5; 18 y 19
+speed word ?
 ;; mensajees :D
 msmError1 db 0ah,0dh,'Error al abrir archivo','$'
 msmError2 db 0ah,0dh,'Error al leer archivo','$'
@@ -67,8 +71,8 @@ userNoValido db 10,13,32,173,173,' Usuario No Existe !!','$'
 userRegistrado db 10,13,32,173,173,' Usuario Registrado !!',10,13,'$'
 userNoValido2 db 10,13,32,173,173,' Usuario Ya Existe !!',10,13,'$'
 contraNoValida db 10,13,32,173,173,' Contrase',164,'a Inv',160,'lida !!','$'
-contraNumerica db 10,13,32,173,173,' Contrase',164,'a debe ser num',130,'rica !!','$'
-
+contraNumerica db 10,13,32,173,173,' La entrada debe ser num',130,'rica !!','$'
+numeroGG db '   '
 
 saveSuccess db 10,13, ' ',173,173,' Archivo guardado con ',130,'xito !!','$'
 loadSuccess db 10,13, ' ',173,173,' Archivo cargado con ',130,'xito !!','$'
@@ -149,16 +153,16 @@ main proc
 
     NORMALUSER:
         print msjOpc6
-        jmp MenuPrincipal
+        jmp VALIDOS
     
     TOP10PUNTOS:
         print msjOpc4
         t10Puntos 
-        jmp MenuPrincipal
+        jmp VALIDOS
 
     TOP10TIEMPO:
         print msjOpc5
-        jmp MenuPrincipal
+        jmp VALIDOS
     
     REGISTRAR:
         print msjOpc2

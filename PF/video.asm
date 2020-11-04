@@ -230,7 +230,7 @@ endm
 
 ;============================= REPORTE DE TOP 10 PUNTOS =======================================
 t10Puntos macro
-    local INICIO, BUBBLEPICK, QUICKPICK, SHELLPICK, VERSPEED, ASCODESC, ASCPICK, DESCPICK, ERRORSPEED, GRAFICAR
+    local INICIO, BUBBLEPICK, QUICKPICK, SHELLPICK, VERSPEED, ASCODESC, ASCPICK, DESCPICK, ERRORSPEED, GRAFICAR, FIN
     ;mostrarGrafica
     INICIO:
         print opc1
@@ -321,7 +321,20 @@ t10Puntos macro
         dirModoTexto
         cmp encabGrafica[5],'B'
         je HACERBURBUJA
+        cmp encabGrafica[5],'S'
+        je HACERSHELL
 
+        jmp FIN
+
+    HACERSHELL:
+        cmp encabGrafica[18],'A'
+        je SHASC
+
+        ;ordernarShellDesc punteos,speed
+        jmp FIN
+    
+    SHASC:
+        ;ordernarShellAsc punteos,speed
         jmp FIN
 
     HACERBURBUJA:
@@ -339,6 +352,8 @@ t10Puntos macro
         ;pintarNumeros punteos
         getKey
         ModoTexto
+
+        ordernarShellAsc punteos,speeds
 
 endm
 
@@ -413,7 +428,7 @@ lecturaPuntos macro
 endm
 
 ;============================= ORDENAMIENTOS ======================================================
-; ------------- ORDENAMIENTO BURBUJA  ----------------------
+; ------------- BUBBLE SORT  ----------------------
 ordenarBurbujaAsc macro arreglo,vel
     local INICIO, MAKESWAP, FIN, FIN2
 
@@ -590,8 +605,8 @@ ordenarBurbujaDecSinGraf macro arreglo
     
     FIN2:
 endm
-; ------------- ORDENAMIENTO RAPIDO -------------------------
-ordenarRapidoAsc macro arreglo
+; ------------- QUICK SORT -------------------------
+ordenarQuickAsc macro arreglo
     local INICIO, QUICK, FIN, QUICK2, PARTITION
 
     xor bx,bx       ;low
@@ -625,5 +640,45 @@ ordenarRapidoAsc macro arreglo
 
 
     FIN:
+
+endm
+
+; ------------- SHELL SORT -------------------------
+ordernarShellAsc macro arreglo, vel
+    
+    getTamanoWord arreglo
+    mov ax,cx
+    sar ax,1
+    push ax
+    mov di,ax ;di <- array.length
+
+    cleanArrWord auxWord
+    pop ax
+    mov si,3d
+    
+    mov bx,(ax/si) ; bx <- array.length / 3
+    mov ax,bx
+    ConvertirString  auxWord
+    print auxWord
+    getChar
+    
+    mov dx,1 ;dx <- intervalo = 1
+    
+    INTERVALO:
+        cmp dx,bx
+        jl FIN
+
+        mov ax,dx
+        mov si,3
+        div si
+        add ax,1
+        mov dx,ax
+
+
+        mov ax,dx
+        jmp INTERVALO
+    
+    FIN:
+        mov ax,dx
 
 endm

@@ -12,6 +12,8 @@ arregloAux db 70 dup('$'),10,13
 usuarioActual db 70 dup('$'),10,13
 ordenados word 100 dup(00h),'$'
 variable word ?
+constante word ?
+color byte ?
 tamano word ?
 auxWord word 34 dup('$'),10,13
 
@@ -26,15 +28,10 @@ bufferEscritura db 200 dup('$')
 handleFichero dw ?
 handle2 dw ?
 handle dw ?
-rutaAux db 'nuevo.arq',00h,00h
-ruta2 db 'nuev2.arq',00h,00h
 answers db 'users.rep',00h,00h
 puntosRuta db 'puntos.rep',00h,00h
 tiempoRuta db 'tiempo.rep',00h,00h
 
-exit db 'EXIT','$'
-noexisteMsj db 'La operaci',162,'n que ingresaste no existe','$'
-repGenerado db 10,10,13,32,173,173,' Reporte Generado !!','$'
 userAdmin db 'adminAI','$$'
 contrAdmin db '4321','$$'
 
@@ -85,10 +82,13 @@ main proc
     mov ds,dx
 
 	MenuPrincipal:
-		print encab
-		print enc
-		print encab2
-		getChar
+		lea dx, encab
+        call print
+	    lea dx, enc
+        call print
+		lea dx, encab2
+        call print
+		call getChar
 		cmp al,'1'
 		je INGRESAR
 		cmp al,'2'
@@ -105,36 +105,44 @@ main proc
         colocarRespuesta usuarios
         ConvertirSumaAscii contrAdmin
         colocarRespuesta contrasenas
-		print msjOpc1
-        print ingreseUser
+		lea dx, msjOpc1
+        call print
+        lea dx, ingreseUser
+        call print
         ObtenerTexto arregloAux
         ConvertirSumaAscii arregloAux
-        searchID
+        call searchID
         push dx
         cmp dx,0
         je USERINVALIDO
 
         ;usuario valido
         pasarArr arregloAux,usuarioActual
-        print welcome
-        print arregloAux
-        print ennd
+        lea dx, welcome
+        call print
+        lea dx, arregloAux
+        call print
+        lea dx, ennd
+        call print
         cleanArr arregloAux
-        print ingreseCont
+        lea dx, ingreseCont
+        call print
         ObtenerPwd arregloAux
         ConvertirSumaAscii arregloAux
         pop dx
         cmp dx,ax
         je VALIDOS
 
-        print contraNoValida
+        lea dx, contraNoValida
+        call print
         cleanArr usuarioActual
-        getChar
+        call getChar
 		jmp MenuPrincipal
     
     USERINVALIDO:
-        print userNoValido
-        getChar
+        lea dx, userNoValido
+        call print
+        call getChar
         jmp MenuPrincipal
     
     VALIDOS:
@@ -142,8 +150,9 @@ main proc
         cmp ah,0b
         je NORMALUSER
 
-        print opcAdmin
-        getChar
+        lea dx, opcAdmin
+        call print
+        call getChar
         cmp al,'1'
         je TOP10PUNTOS
         cmp al,'2'
@@ -152,25 +161,31 @@ main proc
         jmp MenuPrincipal
 
     NORMALUSER:
-        print msjOpc6
+        lea dx, msjOpc6
+        call print
         jmp VALIDOS
     
     TOP10PUNTOS:
-        print msjOpc4
-        t10Puntos 
+        lea dx, msjOpc4
+        call print
+
+        call t10Puntos 
         jmp VALIDOS
 
     TOP10TIEMPO:
-        print msjOpc5
+        lea dx, msjOpc5
+        call print 
         jmp VALIDOS
     
     REGISTRAR:
-        print msjOpc2
-        print ingreseUser
+        lea dx, msjOpc2
+        call print
+        lea dx, ingreseUser
+        call print
         cleanArr arregloAux
         ObtenerTexto arregloAux
         ConvertirSumaAscii arregloAux
-        searchID
+        call searchID
         push ax
         cmp dx,0
         jne YAEXISTE
@@ -179,7 +194,8 @@ main proc
         colocarRespuesta usuarios
     
     INGCONTRASE:
-        print ingreseCont
+        lea dx, ingreseCont
+        call print 
         cleanArr arregloAux
         ObtenerPwd arregloAux
         cmp ch,00h
@@ -187,7 +203,8 @@ main proc
 
         ConvertirSumaAscii arregloAux
         colocarRespuesta contrasenas
-        print userRegistrado
+        lea dx, userRegistrado
+        call print
         
 
         jmp MenuPrincipal
@@ -196,39 +213,46 @@ main proc
         jmp INGCONTRASE
 
     YAEXISTE:
-        print userNoValido2
-        getChar
+        lea dx, userNoValido2
+        call print
+        call getChar
         jmp REGISTRAR
     
     
 	SALIR:
-		print msjOpc3
+		lea dx, msjOpc3
+        call print
 		mov ah,4ch
 		int 21h
     	    
     ErrorAbrir:
-		print msmError1
-		getChar
+		lea dx, msmError1
+        call print
+		call getChar
 		jmp MenuPrincipal
 
 	ErrorLeer:
-		print msmError2
-		getChar
+		lea dx, msmError2
+        call print
+		call getChar
 		jmp MenuPrincipal
 
 	ErrorCrear:
-		print msmError3
-		getChar
+		lea dx, msmError3
+        call print
+		call getChar
 		jmp MenuPrincipal
 
 	ErrorEscribir:
-		print msmError4
-		getChar
+		lea dx, msmError4
+        call print
+		call getChar
 		jmp MenuPrincipal
 
 	ErrorCerrar:
-		print msmError5
-		getChar
+		lea dx, msmError5
+        call print
+		call getChar
 		jmp MenuPrincipal
 
 main endp
@@ -242,5 +266,700 @@ DISP PROC
     ADD al,30H     ; ASCII Adjustment
     RET
 DISP ENDP      ; End Disp Procedure
+
+
+searchID proc
+    ;lo que devuelve el id, se coloca en dx
+    ;local INICIO, NOENCONTRADO, ENCONTRADO, FIN
+    push si
+    push bx
+    xor si,si
+
+    INICIO:
+        mov bx,usuarios[si]
+        cmp bx,00h
+        je NOENCONTRADO
+        cmp bx,ax
+        je ENCONTRADO
+
+        inc si
+        inc si
+        jmp INICIO
+    
+    NOENCONTRADO:
+        mov dx,0
+        jmp FIN
+    
+    ENCONTRADO:
+        mov dx,contrasenas[si]
+
+    FIN:
+
+    pop bx 
+    pop si
+
+    ret
+searchID endp
+
+lecturaPuntos proc
+
+    mov handle,0000h
+    abrirF puntosRuta, handle
+    leerF sizeof bufferLectura, bufferLectura, handle
+    push ax
+    cerrarF handle
+
+    pop ax
+    mov bx,ax
+    xor si,si
+    xor di,di
+    LEER:
+        cmp si,bx
+        jge FIN
+
+        mov al,bufferLectura[si]
+        mov arregloAux[di],al
+        cmp al,'#'
+        je FINLN
+
+        inc di
+        inc si
+        jmp LEER
+
+    FINLN:
+        push si
+        push bx
+        mov bx,di
+        xor si,si
+        xor di,di
+
+        INTERNA:
+            cmp si,bx
+            jge FIN2
+
+            mov al,arregloAux[si]
+            mov arregloAux2[di],al
+            cmp al,';'
+            je PYC
+            
+            inc di
+            inc si
+            jmp INTERNA
+
+        PYC:
+            xor di,di
+            cleanArr arregloAux2
+            inc si
+            jmp INTERNA
+
+        FIN2:
+            ;print arregloAux2
+            ;call getChar
+            ConvertirAscii arregloAux2
+            colocarRespuesta punteos
+            colocarColores barrasGrafica
+            cleanArr arregloAux2
+            cleanArr arregloAux
+            pop bx
+            pop si
+            inc si
+            xor di,di
+            jmp LEER
+
+    FIN:
+        ret
+lecturaPuntos endp
+
+getChar proc
+    mov ah,01h
+    int 21h
+
+    ret
+getChar endp
+
+print proc
+    mov ah,09h
+    ;lea dx,cadena
+    int 21h
+    ret
+print endp
+
+unirNumeros proc
+
+    push si
+    push di
+    push bx
+    push cx
+
+    xor di,di
+    tamanoArr arregloAux ;donde esta TODO
+    mov si,cx
+
+    tamanoArr arregloAux2 ;donde esta un solo NUM
+
+    INICIO:
+        mov bh,arregloAux2[di]
+        mov arregloAux[si],bh
+        inc si
+        inc di
+        loop INICIO
+    
+    pop cx
+    pop bx
+    pop di
+    pop si
+
+    ret
+unirNumeros endp
+
+ModoVideo proc
+    mov ah,00h
+    mov al,13h
+    int 10h
+    call dirModoVideo
+
+    ret
+ModoVideo endp
+
+dirModoVideo proc
+    mov ax, 0A000h
+    mov ds, ax  ; DS = A000h (memoria de graficos).
+    ret
+dirModoVideo endp
+
+ModoTexto proc
+    mov ah,00h
+    mov al,03h
+    int 10h
+    call dirModoTexto
+    ret
+ModoTexto endp
+
+dirModoTexto proc
+    mov ax,@data
+    mov ds,ax
+    ret
+dirModoTexto endp
+
+delay proc
+    push cx
+	push dx
+    push ax
+
+	mov cx,constante
+    mov dx,4240h
+    mov ah,86h
+    int 15h
+
+	Fin:
+        pop ax
+		pop dx
+		pop cx
+    ret
+delay endp
+
+PintarMargen proc
+    mov dl, color
+
+    ;formula es de 320 * i + j
+    ;empieza en pixel (i,j) = (20,5) = 20*320+5 = 6405
+    ;barra horizontal superior
+    mov di,6405
+    Primera:
+        mov [di],dl
+        inc di
+        ;la barra termina cuando llegue a 304 -> entonces: 6405 + 304 + 5 (del margen izq) = 6714
+        cmp di,6714
+        jne Primera
+
+    ;barra horizontal inferior
+    ;empieza en pixel (i,j) = (190,5) = 190 * 320 + 5 = 60805
+    mov di,60805
+    Segunda:
+        mov [di],dl
+        inc di
+        cmp di, 61114
+        jne Segunda
+
+    ;barra vertical izquierda
+    mov di, 6405
+    Tercera:
+        mov [di], dl
+        add di,320
+        cmp di,60805
+        jne Tercera
+
+    ;barra vertical derecha
+    mov di,6714
+    Cuarta:
+        mov [di], dl
+        add di,320
+        cmp di,61114
+        jne Cuarta
+
+    ret
+PintarMargen endp
+
+t10Puntos proc
+    ;mostrarGrafica
+    INICIO:
+        lea dx,opc1
+        call print
+        call getChar
+        cmp al,'1'
+        je BUBBLEPICK
+        cmp al,'2'
+        je  QUICKPICK
+        cmp al,'3'
+        je SHELLPICK
+
+    jmp INICIO
+
+
+    ERRORSPEED:
+        lea dx,contraNumerica
+        call print
+        jmp INICIO
+
+    BUBBLEPICK:
+        mov encabGrafica[5],'B'
+
+        jmp VERSPEED
+
+    QUICKPICK:
+        mov encabGrafica[5],'Q'
+        jmp VERSPEED
+
+    SHELLPICK:
+        mov encabGrafica[5],'S'
+    
+    VERSPEED:
+        lea dx,opc2
+        call print
+        call getChar
+        cmp al,'0'
+        jl ERRORSPEED
+        cmp al,'9'
+        jg ERRORSPEED
+
+        xor bx,bx
+        mov bl,al
+        mov encabGrafica[36],bl
+        sub bl,47
+        mov ax,01h
+        mul bx
+        mov constante,ax
+    
+    ASCODESC:
+        lea dx, opc3
+        call print
+        call getChar
+        cmp al,'1'
+        je ASCPICK
+        cmp al,'2'
+        je  DESCPICK
+
+    jmp INICIO
+
+    ASCPICK:
+        mov encabGrafica[18],'A'
+        mov encabGrafica[19],'S'
+        jmp GRAFICAR
+
+    DESCPICK:
+        mov encabGrafica[17],'D'
+        mov encabGrafica[18],'E'
+        mov encabGrafica[19],'S'
+        jmp GRAFICAR
+
+    GRAFICAR:   
+        cleanArrWord barrasGrafica
+        call lecturaPuntos
+        call ordenarBurbujaDecSinGraf
+        mov dx,punteos[0]
+        mov variable,dx ;en variable esta el num mas grande
+
+        cleanArr arregloAux
+        cleanArrWord punteos
+        cleanArrWord barrasGrafica
+        call lecturaPuntos
+        call ModoVideo
+        mov color,3
+        call PintarMargen
+        call dirModoTexto
+        mostrarTextoVideo 37,1,2,encabGrafica
+        push constante
+        mov constante,00h
+        call mostrarGrafica
+        pop constante
+        pintarNumeros punteos 
+        getKey
+
+        call dirModoTexto
+        cmp encabGrafica[5],'B'
+        je HACERBURBUJA
+        cmp encabGrafica[5],'S'
+        je HACERSHELL
+
+        jmp FIN
+
+    HACERSHELL:
+        cmp encabGrafica[18],'A'
+        je SHASC
+
+        ;ordernarShellDesc punteos,speed
+        jmp FIN
+    
+    SHASC:
+        ;call ordernarShellAsc
+        jmp FIN
+
+    HACERBURBUJA:
+        cmp encabGrafica[18],'A'
+        je BUASC
+
+        call ordenarBurbujaDec
+        jmp FIN
+    
+    BUASC:
+        call ordenarBurbujaAsc
+        jmp FIN
+
+    FIN:
+        ;pintarNumeros punteos
+        getKey
+        call ModoTexto
+
+        call ordernarShellAsc
+    ret
+t10Puntos endp
+
+mostrarGrafica proc
+    push ax
+    push bx
+    push cx
+    push dx
+    push si
+    push di 
+
+    getTamanoWord punteos
+    mov ax,cx
+    sar ax,1
+    mov bx,ax       ;en BX esta la cantidad de numeros guardados
+    
+    mov ax,299 ;;ancho de 299px
+    div bx   
+    mov tamano,ax       ;en tamano esta 'TAM'
+
+    mov di,52817        ;en DI esta punto de partida
+
+    xor si,si
+
+    INICIO:
+
+        cmp si,cx
+        jge FIN
+        
+        push si
+
+        mov ax,137      ;alto de 160px
+        mov dx,punteos[si]
+        ;mov dx,23
+        mul dx      ;160 * X
+
+        mov bx,variable
+        div bx
+
+        mov bx,ax       ;160*X dividido el mas grande
+        mov dx,barrasGrafica[si]
+        mov si,tamano
+        call dirModoVideo
+        ;PintarBarra si,di,bx,dx
+        PintarBarra dx,di,29,bx
+        call dirModoTexto
+        ;pintarNumeros punteos
+        call delay
+        add di,29
+        ;mov ax,si
+        ;ConvertirString auxWord
+        ;print auxWord
+        ;call getChar
+
+        pop si
+        inc si
+        inc si
+        jmp INICIO
+
+    FIN:
+        ;pintarNumeros punteos
+        pop di
+        pop si
+        pop dx
+        pop cx
+        pop bx
+        pop ax
+    
+    ret
+mostrarGrafica endp
+
+
+;============================= ORDENAMIENTOS ======================================================
+; ------------- BUBBLE SORT  ----------------------
+ordenarBurbujaAsc proc
+
+    mov [bandera],00b       ;variable para ver si hubo swap
+    getTamanoWord punteos
+    
+    dec cx
+    dec cx
+
+    xor si,si
+
+    INICIO:
+        cmp si,cx
+        jge FIN
+
+        ;mov [bandera],00b   ;no hubo swap
+        mov bx,punteos[si]  ;pos en el arr[x]
+        mov di,si
+        inc di
+        inc di
+        mov dx,punteos[di]  ;pos en el arr[x+1]
+        
+        cmp bx,dx
+        jg MAKESWAP     ;if arr[x] > arr[x+1] -> go to MAKESWAP
+
+        inc si
+        inc si
+        jmp INICIO
+
+    MAKESWAP:
+        mov punteos[si],dx  ;mover arr[x] <- arr[x+1] 
+        mov punteos[di],bx  ;mover arr[x+1] <- arr[x]
+        mov dx,barrasGrafica[si]
+        mov bx,barrasGrafica[di]
+        mov barrasGrafica[si],bx
+        mov barrasGrafica[di],dx
+
+        ;call dirModoVideo
+        call ModoVideo
+        mov color,3
+        call PintarMargen
+
+        call dirModoTexto
+        mostrarTextoVideo 37,1,2,encabGrafica
+
+        call mostrarGrafica
+        call dirModoTexto
+        
+        mov [bandera],01b   ;hubo swap
+
+        inc si
+        inc si
+        jmp INICIO
+
+    FIN:
+        cmp [bandera],00b   ;no hubo swap
+        je FIN2
+
+        xor si,si
+        mov [bandera],00b
+        jmp INICIO
+    
+    FIN2:
+        ret
+ordenarBurbujaAsc endp
+
+ordenarBurbujaDec proc
+
+    mov [bandera],00b       ;variable para ver si hubo swap
+    getTamanoWord punteos
+    
+    dec cx
+    dec cx
+
+    xor si,si
+
+    INICIO:
+        cmp si,cx
+        jge FIN
+
+        ;mov [bandera],00b   ;no hubo swap
+        mov bx,punteos[si]  ;pos en el arr[x]
+        mov di,si
+        inc di
+        inc di
+        mov dx,punteos[di]  ;pos en el arr[x+1]
+        
+        cmp bx,dx
+        jl MAKESWAP     ;if arr[x] < arr[x+1] -> go to MAKESWAP
+
+        inc si
+        inc si
+        jmp INICIO
+
+    MAKESWAP:
+        mov punteos[si],dx  ;mover arr[x] <- arr[x+1] 
+        mov punteos[di],bx  ;mover arr[x+1] <- arr[x]
+
+        mov dx,barrasGrafica[si]
+        mov bx,barrasGrafica[di]
+        mov barrasGrafica[si],bx
+        mov barrasGrafica[di],dx
+
+        ;call dirModoVideo
+        call ModoVideo
+        mov color,3
+        call PintarMargen
+
+        call dirModoTexto
+        mostrarTextoVideo 37,1,2,encabGrafica
+        call mostrarGrafica
+        call dirModoTexto
+        
+        mov [bandera],01b   ;hubo swap
+
+        inc si
+        inc si
+        jmp INICIO
+
+    FIN:
+        cmp [bandera],00b   ;no hubo swap
+        je FIN2
+
+        xor si,si
+        mov [bandera],00b
+        jmp INICIO
+    
+    FIN2:
+        ret
+ordenarBurbujaDec endp
+
+ordenarBurbujaDecSinGraf proc
+
+    mov [bandera],00b       ;variable para ver si hubo swap
+    getTamanoWord punteos
+    
+    dec cx
+    dec cx
+
+    xor si,si
+
+    INICIO:
+        cmp si,cx
+        jge FIN
+
+        ;mov [bandera],00b   ;no hubo swap
+        mov bx,punteos[si]  ;pos en el arr[x]
+        mov di,si
+        inc di
+        inc di
+        mov dx,punteos[di]  ;pos en el arr[x+1]
+        
+        cmp bx,dx
+        jl MAKESWAP     ;if arr[x] < arr[x+1] -> go to MAKESWAP
+
+        inc si
+        inc si
+        jmp INICIO
+
+    MAKESWAP:
+        mov punteos[si],dx  ;mover arr[x] <- arr[x+1] 
+        mov punteos[di],bx  ;mover arr[x+1] <- arr[x]
+        
+        mov [bandera],01b   ;hubo swap
+
+        inc si
+        inc si
+        jmp INICIO
+
+    FIN:
+        cmp [bandera],00b   ;no hubo swap
+        je FIN2
+
+        xor si,si
+        mov [bandera],00b
+        jmp INICIO
+    
+    FIN2:
+        ret
+ordenarBurbujaDecSinGraf endp
+
+; ------------- QUICK SORT -------------------------
+ordenarQuickAsc proc
+
+    xor bx,bx       ;low
+    getTamanoWord punteos
+    
+    dec cx
+    dec cx          ;high
+
+    INICIO:
+        call QUICK
+        jmp FIN
+    
+    QUICK:
+        cmp bx,cx
+        jl QUICK2   ;if low < high then QUICK2
+
+        ret
+    
+    PARTITION:
+        mov si,cx   ;si es ahora high
+        mov dx,punteos[si]
+
+        ;mov 
+
+        ret
+    
+    QUICK2:
+        call PARTITION
+        ; quick before PI
+        ; quick after PI
+
+
+    FIN:
+        ret
+ordenarQuickAsc endp
+
+; ------------- SHELL SORT -------------------------
+ordernarShellAsc proc
+    getTamanoWord punteos
+    mov ax,cx
+    sar ax,1
+    push ax
+    mov di,ax ;di <- array.length
+
+    cleanArrWord auxWord
+    pop ax
+    mov si,3d
+    
+    ;mov bx,(ax/si) ; bx <- array.length / 3
+    mov ax,bx
+    ConvertirString  auxWord
+    lea dx, auxWord
+    call print
+    call getChar
+    
+    mov dx,1 ;dx <- intervalo = 1
+    
+    INTERVALO:
+        cmp dx,bx
+        jl FIN
+
+        mov ax,dx
+        mov si,3
+        div si
+        add ax,1
+        mov dx,ax
+
+
+        mov ax,dx
+        jmp INTERVALO
+    
+    FIN:
+        mov ax,dx
+    ret
+ordernarShellAsc endp
 
 end

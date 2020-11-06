@@ -1,51 +1,5 @@
 include video.asm
 
-ModoVideo macro
-    mov ah,00h
-    mov al,13h
-    int 10h
-    dirModoVideo
-endm
-
-dirModoVideo macro
-    mov ax, 0A000h
-    mov ds, ax  ; DS = A000h (memoria de graficos).
-endm
-
-ModoTexto macro
-    mov ah,00h
-    mov al,03h
-    int 10h
-    dirModoTexto
-endm
-
-dirModoTexto macro
-    mov ax,@data
-    mov ds,ax
-endm
-
-delay macro constante
-	LOCAL D1,D2,Fin
-	push si
-	push di
-
-	mov si,constante
-
-	D1:
-		dec si
-		jz Fin
-		mov di,constante
-		
-	D2:
-		dec di
-		jnz D2
-		jmp D1
-
-	Fin:
-		pop di
-		pop si
-endm
-
 verTeclaPresionada macro
     local FIN
 
@@ -63,13 +17,6 @@ getKey macro
     int 16h
 endm
 
-
-print macro cadena
-    mov ah,09h
-    lea dx,cadena
-    int 21h
-endm
-
 ObtenerTexto macro buffer
     local CONTINUE, FIN
         PUSH SI
@@ -80,7 +27,7 @@ ObtenerTexto macro buffer
             cmp si,7
             je FIN
 
-            getChar
+            call getChar
             cmp al,32
             je FIN
             
@@ -119,7 +66,8 @@ ObtenerPwd macro buffer
             jmp CONTINUE
 
         INVALIDO:
-            print contraNumerica
+            lea dx, contraNumerica
+            call print
             mov ch,00h
         FIN:
             mov al,'$'
@@ -137,11 +85,6 @@ endm
 
 getPwd macro
     mov ah,08h
-    int 21h
-endm
-
-getChar macro
-    mov ah,01h
     int 21h
 endm
 
@@ -461,74 +404,6 @@ colocarColores macro arreglo
 
 endm
 
-searchID macro
-    ;lo que devuelve el id, se coloca en dx
-    local INICIO, NOENCONTRADO, ENCONTRADO, FIN
-    push si
-    push bx
-    xor si,si
-
-    INICIO:
-        mov bx,usuarios[si]
-        cmp bx,00h
-        je NOENCONTRADO
-        cmp bx,ax
-        je ENCONTRADO
-
-        inc si
-        inc si
-        jmp INICIO
-    
-    NOENCONTRADO:
-        mov dx,0
-        jmp FIN
-    
-    ENCONTRADO:
-        mov dx,contrasenas[si]
-
-    FIN:
-
-    pop bx 
-    pop si
-endm
-
-colocarIdentificador macro arreglo
-    local INICIO, FIN, FIN2
-    push si
-    push ax
-    push di
-
-    xor si,si
-    xor ax,ax
-    xor di,di
-    
-    INICIO:
-        mov  al,nombresIdentificadores[si]
-        cmp al,'$'
-        je FIN
-
-        inc si
-        jmp INICIO
-
-    FIN:
-        mov ah,arreglo[di]
-        cmp ah,'$'
-        je FIN2
-    
-        mov nombresIdentificadores[si],ah
-
-        inc di
-        inc si
-        jmp FIN
-    
-    FIN2:
-        mov nombresIdentificadores[si],186 ;signo rarito
-
-    pop di
-    pop ax
-    pop si
-endm
-
 ;=========================== FICHEROS ===================
 abrirF macro ruta,handle
     push dx
@@ -538,7 +413,7 @@ abrirF macro ruta,handle
     lea dx,ruta
     int 21h
     mov handle,ax
-    jc ErrorAbrir
+    ;jc ErrorAbrir
     pop dx
 endm
 
@@ -549,7 +424,7 @@ leerF macro numbytes,buffer,handle
 	mov cx,numbytes
 	lea dx,buffer
 	int 21h
-	jc ErrorLeer
+	;jc ErrorLeer
     pop bx
 endm
 
@@ -585,7 +460,7 @@ getRuta macro buffer
     push si
     xor si,si
         INICIO:
-            getChar
+            call getChar
             cmp al,0dh
             je FIN
             mov buffer[si],al
@@ -604,7 +479,7 @@ cerrarF macro handle
 	mov ah,3eh
 	mov bx,handle
 	int 21h
-	jc ErrorCerrar
+	;jc ErrorCerrar
     pop bx
 endm
 
@@ -633,24 +508,6 @@ escribirA macro arreglo, handle
 
 
     pop si
-endm
-
-saveUsuarios macro
-    borrarF answers
-    mov handle,00h
-    crearF answers, handle
-    abrirF answers, handle
-    escribirF handle, sizeof usuarios, usuarios
-    escribirF handle, sizeof contrasenas, contrasenas
-    cerrarF handle
-endm
-
-getUsuarios macro
-    mov handle,00h
-    abrirF answers, handle
-    leerF sizeof usuarios, usuarios, handle
-    leerF sizeof contrasenas, contrasenas, handle
-    cerrarF handle
 endm
 
 ;==================== COMPARACIONES ========================
@@ -723,8 +580,9 @@ mostrarArreglo macro arreglo
 
         mov ax,arreglo[si]
         ConvertirString auxWord
-        print auxWord
-        getChar
+        lea dx, auxWord
+        call print
+        call getChar
 
         inc si
         inc si
@@ -749,56 +607,4 @@ pasarArr macro actual, otro
         loop INICIO
 
     pop si
-endm
-
-unirNumeros macro
-    local INICIO
-    
-    push si
-    push di
-    push bx
-    push cx
-
-    xor di,di
-    tamanoArr arregloAux ;donde esta TODO
-    mov si,cx
-
-    tamanoArr arregloAux2 ;donde esta un solo NUM
-
-    INICIO:
-        mov bh,arregloAux2[di]
-        mov arregloAux[si],bh
-        inc si
-        inc di
-        loop INICIO
-    
-    pop cx
-    pop bx
-    pop di
-    pop si
-endm
-
-pasarPadre macro
-    local INICIO,FIN
-    push si
-    push dx
-
-    xor si,si
-    inc si
-
-    INICIO:
-        cmp si,65
-        je FIN
-        
-        mov dl,arregloAux[si]
-        dec si
-        mov nombrePadre[si],dl
-        inc si
-        inc si
-        jmp INICIO
-    
-    FIN:
-        mov nombrePadre[si],'$'
-        pop dx
-        pop si
 endm

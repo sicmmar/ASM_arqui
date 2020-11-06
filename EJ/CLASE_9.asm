@@ -253,10 +253,24 @@ main proc
 		;--------OBTENIENDO EL NUMERO ESCOGIDO------------------------
 		getChar
 		cmp al,'1'; COMPARO CON EL ASCII DEL NUMERO 1 QUE ES 49 Y EN HEXA 31H
-		je Video1
+		je Video2
 		cmp al,'3'
 		je Salir
 		jmp MenuPrincipal
+	
+	Video2:
+		ModoVideo
+		PintarMargen 5
+		pintarPelota 50,3
+		Delay 500
+		pintarPelota 70,3
+		Delay 500
+		getChar
+
+
+		FIN2:
+			ModoTexto
+			jmp MenuPrincipal
 
 	Video1:
 		ModoVideo

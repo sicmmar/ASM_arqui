@@ -459,6 +459,8 @@ delay proc
 delay endp
 
 PintarMargen proc
+    push di
+    push dx
     mov dl, color
 
     ;formula es de 320 * i + j
@@ -496,6 +498,9 @@ PintarMargen proc
         add di,320
         cmp di,61114
         jne Cuarta
+    
+    pop dx
+    pop di
 
     ret
 PintarMargen endp
@@ -607,11 +612,11 @@ t10Puntos proc
         cmp encabGrafica[18],'A'
         je SHASC
 
-        ;ordernarShellDesc punteos,speed
+        ;call ordernarShellDec
         jmp FIN
     
     SHASC:
-        ;call ordernarShellAsc
+        call ordernarShellAsc
         jmp FIN
 
     HACERBURBUJA:
@@ -630,7 +635,7 @@ t10Puntos proc
         getKey
         call ModoTexto
 
-        call ordernarShellAsc
+        ;call ordernarShellDec
     ret
 t10Puntos endp
 
@@ -925,41 +930,167 @@ ordenarQuickAsc endp
 ; ------------- SHELL SORT -------------------------
 ordernarShellAsc proc
     getTamanoWord punteos
-    mov ax,cx
-    sar ax,1
-    push ax
-    mov di,ax ;di <- array.length
+    sar cx,1;no usar CX <- es la cant. de veces que necesita recorrer el array
+    mov bx,cx ;bx <- array.length
 
     cleanArrWord auxWord
-    pop ax
-    mov si,3d
+    sar bx,1 ;bx <- gap inicial (n/2)
     
-    ;mov bx,(ax/si) ; bx <- array.length / 3
-    mov ax,bx
-    ConvertirString  auxWord
-    lea dx, auxWord
-    call print
-    call getChar
-    
-    mov dx,1 ;dx <- intervalo = 1
-    
-    INTERVALO:
-        cmp dx,bx
-        jl FIN
+    PRIMERFOR:
+        cmp bx,0 
+        jle FIN ;salir solo si gap <= 0
 
-        mov ax,dx
-        mov si,3
-        div si
-        add ax,1
-        mov dx,ax
+        mov si,bx ;i (reg. si) = gap
+        
+        SEGUNDOFOR:
+            cmp si,cx
+            jge FINPRIMERFOR
 
+            sal si,1
+            mov dx,punteos[si] ;temp -> dx
+            sar si,1
 
-        mov ax,dx
-        jmp INTERVALO
+            mov di,si ;j (reg. di) = i (reg.si)
+
+            TERCERFOR:
+                cmp di,bx
+                jl FINSEGUNDOFOR
+
+                sub di,bx
+                sal di,1
+                cmp punteos[di],dx
+                jle ETIQAUX
+
+                push dx
+
+                mov dx,punteos[di]
+
+                push dx
+                mov dx,barrasGrafica[di]
+
+                sar di,1
+                add di,bx
+
+                sal di,1
+
+                mov barrasGrafica[di],dx
+                pop dx
+                mov punteos[di],dx
     
+                sar di,1
+
+                call ModoVideo
+                mov color,3
+                call PintarMargen
+
+                call dirModoTexto
+                mostrarTextoVideo 37,1,2,encabGrafica
+
+                call mostrarGrafica
+                call dirModoTexto
+
+                pop dx
+                                
+                sub di,bx ;j = j - gap
+                jmp TERCERFOR
+
+            ETIQAUX:
+                sar di,1
+                add di,bx
+
+            FINSEGUNDOFOR:
+                ;add di,bx
+                sal di,1
+                mov punteos[di],dx
+                sar di,1
+
+                inc si
+                jmp SEGUNDOFOR
+        
+        FINPRIMERFOR:
+            sar bx,1 ;reducir -> gap = gap / 2
+            jmp PRIMERFOR
+
     FIN:
-        mov ax,dx
-    ret
+        call ModoVideo
+        mov color,3
+        call PintarMargen
+
+        call dirModoTexto
+        mostrarTextoVideo 37,1,2,encabGrafica
+
+        call mostrarGrafica
+        call dirModoTexto
+        ret
 ordernarShellAsc endp
+
+ordernarShellDec proc
+    getTamanoWord punteos
+    sar cx,1;no usar CX <- es la cant. de veces que necesita recorrer el array
+    mov bx,cx ;bx <- array.length
+
+    cleanArrWord auxWord
+    sar bx,1 ;bx <- gap inicial (n/2)
+    
+    PRIMERFOR:
+        cmp bx,0 
+        jle FIN ;salir solo si gap <= 0
+
+        mov si,bx ;i (reg. si) = gap
+        
+        SEGUNDOFOR:
+            cmp si,cx
+            jge FINPRIMERFOR
+
+            sal si,1
+            mov dx,punteos[si] ;temp -> dx
+            sar si,1
+
+            mov di,si ;j (reg. di) = i (reg.si)
+
+            TERCERFOR:
+                cmp di,bx
+                jl FINSEGUNDOFOR
+
+                sub di,bx
+                sal di,1
+                cmp punteos[di],dx
+                jge ETIQAUX
+
+                push dx
+
+                mov dx,punteos[di]
+                sar di,1
+                add di,bx
+
+                sal di,1
+                mov punteos[di],dx
+                sar di,1
+
+                pop dx
+                                
+                sub di,bx ;j = j - gap
+                jmp TERCERFOR
+
+            ETIQAUX:
+                sar di,1
+                add di,bx
+
+            FINSEGUNDOFOR:
+                ;add di,bx
+                sal di,1
+                mov punteos[di],dx
+                sar di,1
+
+                inc si
+                jmp SEGUNDOFOR
+        
+        FINPRIMERFOR:
+            sar bx,1 ;reducir -> gap = gap / 2
+            jmp PRIMERFOR
+
+    FIN:
+        ret
+ordernarShellDec endp
 
 end

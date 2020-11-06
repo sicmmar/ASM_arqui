@@ -460,7 +460,6 @@ delay endp
 
 PintarMargen proc
     push di
-    push dx
     mov dl, color
 
     ;formula es de 320 * i + j
@@ -498,10 +497,7 @@ PintarMargen proc
         add di,320
         cmp di,61114
         jne Cuarta
-    
-    pop dx
     pop di
-
     ret
 PintarMargen endp
 
@@ -597,7 +593,7 @@ t10Puntos proc
         mov constante,00h
         call mostrarGrafica
         pop constante
-        pintarNumeros punteos 
+        call pintarNumeros
         getKey
 
         call dirModoTexto
@@ -631,7 +627,18 @@ t10Puntos proc
         jmp FIN
 
     FIN:
-        ;pintarNumeros punteos
+        call dirModoVideo
+        mov color,3
+        call PintarMargen
+        call dirModoTexto
+        mostrarTextoVideo 37,1,2,encabGrafica
+        push constante
+        mov constante,00h
+        call mostrarGrafica
+        pop constante
+        call pintarNumeros
+
+
         getKey
         call ModoTexto
 
@@ -707,6 +714,44 @@ mostrarGrafica proc
     ret
 mostrarGrafica endp
 
+pintarNumeros proc
+
+    push si
+    push cx
+    push di
+    push dx
+
+    xor dx,dx
+    xor si,si
+    getTamanoWord punteos
+    mov di,cx
+    mov dl,2
+
+    INICIO:
+        cmp si,di
+        jge FIN
+
+        cleanArr arregloAux2
+        mov ax,punteos[si]
+        ConvertirStringByte arregloAux2
+        tamanoArr arregloAux2
+        call unirNumeros 
+        add dl,2
+
+
+        inc si
+        inc si
+        jmp INICIO
+
+    FIN:
+        mostrarTextoVideo 37,22,2,arregloAux
+        call dirModoTexto
+        pop dx
+        pop di
+        pop cx
+        pop si
+        ret
+pintarNumeros endp
 
 ;============================= ORDENAMIENTOS ======================================================
 ; ------------- BUBBLE SORT  ----------------------
@@ -820,6 +865,7 @@ ordenarBurbujaDec proc
         call dirModoTexto
         mostrarTextoVideo 37,1,2,encabGrafica
         call mostrarGrafica
+        ;pintarNumeros
         call dirModoTexto
         
         mov [bandera],01b   ;hubo swap
@@ -979,15 +1025,6 @@ ordernarShellAsc proc
     
                 sar di,1
 
-                call ModoVideo
-                mov color,3
-                call PintarMargen
-
-                call dirModoTexto
-                mostrarTextoVideo 37,1,2,encabGrafica
-
-                call mostrarGrafica
-                call dirModoTexto
 
                 pop dx
                                 
@@ -1012,15 +1049,6 @@ ordernarShellAsc proc
             jmp PRIMERFOR
 
     FIN:
-        call ModoVideo
-        mov color,3
-        call PintarMargen
-
-        call dirModoTexto
-        mostrarTextoVideo 37,1,2,encabGrafica
-
-        call mostrarGrafica
-        call dirModoTexto
         ret
 ordernarShellAsc endp
 

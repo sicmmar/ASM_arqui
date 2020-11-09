@@ -460,6 +460,7 @@ delay endp
 
 PintarMargen proc
     push di
+    ;push dx
     mov dl, color
 
     ;formula es de 320 * i + j
@@ -497,6 +498,7 @@ PintarMargen proc
         add di,320
         cmp di,61114
         jne Cuarta
+    ;pop dx
     pop di
     ret
 PintarMargen endp
@@ -555,10 +557,10 @@ t10Puntos proc
         lea dx, opc3
         call print
         call getChar
-        cmp al,'1'
-        je ASCPICK
         cmp al,'2'
-        je  DESCPICK
+        je ASCPICK
+        cmp al,'1'
+        je DESCPICK
 
     jmp INICIO
 
@@ -608,7 +610,7 @@ t10Puntos proc
         cmp encabGrafica[18],'A'
         je SHASC
 
-        ;call ordernarShellDec
+        call ordernarShellDec
         jmp FIN
     
     SHASC:
@@ -627,7 +629,7 @@ t10Puntos proc
         jmp FIN
 
     FIN:
-        call dirModoVideo
+        call ModoVideo
         mov color,3
         call PintarMargen
         call dirModoTexto
@@ -993,6 +995,8 @@ ordernarShellAsc proc
             jge FINPRIMERFOR
 
             sal si,1
+            mov dx,barrasGrafica[si]
+            push dx
             mov dx,punteos[si] ;temp -> dx
             sar si,1
 
@@ -1022,9 +1026,19 @@ ordernarShellAsc proc
                 mov barrasGrafica[di],dx
                 pop dx
                 mov punteos[di],dx
+
     
                 sar di,1
 
+                call ModoVideo
+                mov color,3
+                call PintarMargen
+
+                call dirModoTexto
+                mostrarTextoVideo 37,1,2,encabGrafica
+
+                call mostrarGrafica
+                call dirModoTexto
 
                 pop dx
                                 
@@ -1039,7 +1053,19 @@ ordernarShellAsc proc
                 ;add di,bx
                 sal di,1
                 mov punteos[di],dx
+                pop dx
+                mov barrasGrafica[di],dx
                 sar di,1
+
+                call ModoVideo
+                mov color,3
+                call PintarMargen
+
+                call dirModoTexto
+                mostrarTextoVideo 37,1,2,encabGrafica
+
+                call mostrarGrafica
+                call dirModoTexto
 
                 inc si
                 jmp SEGUNDOFOR
@@ -1071,6 +1097,8 @@ ordernarShellDec proc
             jge FINPRIMERFOR
 
             sal si,1
+            mov dx,barrasGrafica[si]
+            push dx
             mov dx,punteos[si] ;temp -> dx
             sar si,1
 
@@ -1088,12 +1116,31 @@ ordernarShellDec proc
                 push dx
 
                 mov dx,punteos[di]
+
+                push dx
+                mov dx,barrasGrafica[di]
+
                 sar di,1
                 add di,bx
 
                 sal di,1
+
+                mov barrasGrafica[di],dx
+                pop dx
                 mov punteos[di],dx
+
+    
                 sar di,1
+
+                call ModoVideo
+                mov color,3
+                call PintarMargen
+
+                call dirModoTexto
+                mostrarTextoVideo 37,1,2,encabGrafica
+
+                call mostrarGrafica
+                call dirModoTexto
 
                 pop dx
                                 
@@ -1108,7 +1155,19 @@ ordernarShellDec proc
                 ;add di,bx
                 sal di,1
                 mov punteos[di],dx
+                pop dx
+                mov barrasGrafica[di],dx
                 sar di,1
+
+                call ModoVideo
+                mov color,3
+                call PintarMargen
+
+                call dirModoTexto
+                mostrarTextoVideo 37,1,2,encabGrafica
+
+                call mostrarGrafica
+                call dirModoTexto
 
                 inc si
                 jmp SEGUNDOFOR

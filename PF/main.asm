@@ -50,8 +50,11 @@ msjOpc4 db 10,10,13,9,'-----------------------  TOP 10 PUNTOS  -----------------
 msjOpc5 db 10,10,13,9,'-----------------------  TOP 10 TIEMPO  -----------------------',10,13,'$'
 msjOpc6 db 10,10,13,9,'-----------------------  INICIO JUEGO  -----------------------',10,13,'$'
 saltoln db 10,13,'$'
-encabGrafica db 'ORD:  ',32,'    TIPO:  ',32,32,'C    VELOCIDAD:  ' ; 5; 18 y 19; 36
+encabGrafica db 'ORD:',32,'    TIPO:',32,32,'C    VEL:',32,'    00:00' ; 4; 14 y 15; 25; 27,28,30,31
 speed word ?
+seconds db 99
+esTiempo byte 0
+
 ;; mensajees :D
 msmError1 db 0ah,0dh,'Error al abrir archivo','$'
 msmError2 db 0ah,0dh,'Error al leer archivo','$'
@@ -166,15 +169,21 @@ main proc
         jmp VALIDOS
     
     TOP10PUNTOS:
+        mov esTiempo,00h
         lea dx, msjOpc4
         call print
 
+        mov esTiempo,32
         call t10Puntos 
         jmp VALIDOS
 
     TOP10TIEMPO:
+        mov esTiempo,00h
         lea dx, msjOpc5
         call print 
+
+        mov esTiempo,64
+        call t10Puntos
         jmp VALIDOS
     
     REGISTRAR:
@@ -303,11 +312,26 @@ searchID endp
 
 lecturaPuntos proc
 
+    cleanArrWord punteos
+    cleanArr bufferLectura
     mov handle,0000h
-    abrirF puntosRuta, handle
-    leerF sizeof bufferLectura, bufferLectura, handle
-    push ax
-    cerrarF handle
+
+    cmp esTiempo,64
+    je ABRIRTIEMPO
+    cmp esTiempo,32
+    je ABRIRPUNTOS
+
+    ABRIRTIEMPO:
+        abrirF tiempoRuta,handle
+        jmp SEGUIR
+
+    ABRIRPUNTOS:
+        abrirF puntosRuta,handle
+
+    SEGUIR:
+        leerF sizeof bufferLectura, bufferLectura, handle
+        push ax
+        cerrarF handle
 
     pop ax
     mov bx,ax
@@ -525,16 +549,16 @@ t10Puntos proc
         jmp INICIO
 
     BUBBLEPICK:
-        mov encabGrafica[5],'B'
+        mov encabGrafica[4],'B'
 
         jmp VERSPEED
 
     QUICKPICK:
-        mov encabGrafica[5],'Q'
+        mov encabGrafica[4],'Q'
         jmp VERSPEED
 
     SHELLPICK:
-        mov encabGrafica[5],'S'
+        mov encabGrafica[4],'S'
     
     VERSPEED:
         lea dx,opc2
@@ -547,7 +571,7 @@ t10Puntos proc
 
         xor bx,bx
         mov bl,al
-        mov encabGrafica[36],bl
+        mov encabGrafica[25],bl
         sub bl,47
         mov ax,01h
         mul bx
@@ -565,18 +589,18 @@ t10Puntos proc
     jmp INICIO
 
     ASCPICK:
-        mov encabGrafica[18],'A'
-        mov encabGrafica[19],'S'
+        mov encabGrafica[14],'A'
+        mov encabGrafica[15],'S'
         jmp GRAFICAR
 
     DESCPICK:
-        mov encabGrafica[17],'D'
-        mov encabGrafica[18],'E'
-        mov encabGrafica[19],'S'
+        mov encabGrafica[14],'D'
+        mov encabGrafica[15],'E'
         jmp GRAFICAR
 
     GRAFICAR:   
         cleanArrWord barrasGrafica
+
         call lecturaPuntos
         call ordenarBurbujaDecSinGraf
         mov dx,punteos[0]
@@ -599,15 +623,28 @@ t10Puntos proc
         getKey
 
         call dirModoTexto
-        cmp encabGrafica[5],'B'
+        cmp encabGrafica[4],'B'
         je HACERBURBUJA
-        cmp encabGrafica[5],'S'
+        cmp encabGrafica[4],'S'
         je HACERSHELL
+        cmp encabGrafica[4],'Q'
+        je HACERQUICK
 
         jmp FIN
 
+    HACERQUICK:
+        cmp encabGrafica[14],'A'
+        je QUASC
+
+        ;call ordenarQuickDec
+        jmp FIN
+    
+    QUASC:
+        ;call ordenarQuickAsc
+        jmp FIN
+
     HACERSHELL:
-        cmp encabGrafica[18],'A'
+        cmp encabGrafica[14],'A'
         je SHASC
 
         call ordernarShellDec
@@ -618,7 +655,7 @@ t10Puntos proc
         jmp FIN
 
     HACERBURBUJA:
-        cmp encabGrafica[18],'A'
+        cmp encabGrafica[14],'A'
         je BUASC
 
         call ordenarBurbujaDec
@@ -644,7 +681,7 @@ t10Puntos proc
         getKey
         call ModoTexto
 
-        ;call ordernarShellDec
+        ;call ordenarQuickAsc
     ret
 t10Puntos endp
 
@@ -786,6 +823,11 @@ ordenarBurbujaAsc proc
         jmp INICIO
 
     MAKESWAP:
+        push constante
+	    mov constante,0Ah
+        ejecutarSonido bx
+        pop constante
+
         mov punteos[si],dx  ;mover arr[x] <- arr[x+1] 
         mov punteos[di],bx  ;mover arr[x+1] <- arr[x]
         mov dx,barrasGrafica[si]
@@ -851,6 +893,11 @@ ordenarBurbujaDec proc
         jmp INICIO
 
     MAKESWAP:
+        push constante
+	    mov constante,0Ah
+        ejecutarSonido bx
+        pop constante
+
         mov punteos[si],dx  ;mover arr[x] <- arr[x+1] 
         mov punteos[di],bx  ;mover arr[x+1] <- arr[x]
 
@@ -943,37 +990,44 @@ ordenarQuickAsc proc
 
     xor bx,bx       ;low
     getTamanoWord punteos
+    sar cx,1        ;n
+    dec cx        ;cx -> n - 1 -> high
     
-    dec cx
-    dec cx          ;high
-
-    INICIO:
-        call QUICK
-        jmp FIN
-    
-    QUICK:
-        cmp bx,cx
-        jl QUICK2   ;if low < high then QUICK2
-
-        ret
-    
-    PARTITION:
-        mov si,cx   ;si es ahora high
-        mov dx,punteos[si]
-
-        ;mov 
-
-        ret
-    
-    QUICK2:
-        call PARTITION
-        ; quick before PI
-        ; quick after PI
-
+    push cx
+    call sortQ
 
     FIN:
         ret
 ordenarQuickAsc endp
+
+sortQ proc
+
+    cmp bx,cx
+    jl HACERPARTITION ;if low < high
+    jmp FIN
+
+    HACERPARTITION:
+        call particionQ     ;dx -> pi
+
+        mov si,cx     ;high
+
+        mov cx,dx   ;high -> pi
+        dec cx      ;pi - 1
+        call sortQ  ;sort(low, pi-1)
+
+        mov cx,si      ;high original
+        mov bx,dx   ;low -> pi
+        inc bx      ;pi + 1
+        call sortQ
+
+
+
+    FIN:
+        ret 
+sortQ endp
+
+particionQ proc
+particionQ endp
 
 ; ------------- SHELL SORT -------------------------
 ordernarShellAsc proc
@@ -1027,6 +1081,11 @@ ordernarShellAsc proc
                 pop dx
                 mov punteos[di],dx
 
+                push constante
+                mov constante,0Ah
+                ejecutarSonido dx
+                pop constante
+
     
                 sar di,1
 
@@ -1053,6 +1112,12 @@ ordernarShellAsc proc
                 ;add di,bx
                 sal di,1
                 mov punteos[di],dx
+
+                push constante
+                mov constante,0Ah
+                ejecutarSonido dx
+                pop constante
+
                 pop dx
                 mov barrasGrafica[di],dx
                 sar di,1
@@ -1129,6 +1194,11 @@ ordernarShellDec proc
                 pop dx
                 mov punteos[di],dx
 
+                push constante
+                mov constante,0Ah
+                ejecutarSonido dx
+                pop constante
+
     
                 sar di,1
 
@@ -1155,6 +1225,12 @@ ordernarShellDec proc
                 ;add di,bx
                 sal di,1
                 mov punteos[di],dx
+
+                push constante
+                mov constante,0Ah
+                ejecutarSonido dx
+                pop constante
+
                 pop dx
                 mov barrasGrafica[di],dx
                 sar di,1
